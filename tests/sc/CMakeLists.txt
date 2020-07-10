@@ -10,6 +10,7 @@ target_compile_options(${hdl_name}_test
 
 target_include_directories(${hdl_name}_test SYSTEM PRIVATE
   ${COMMONS_INCLUDE_DIR}
+  ${UVM_INCLUDE_DIR}
   ${SYSTEMC_INCLUDE_DIRS} 
   )
 

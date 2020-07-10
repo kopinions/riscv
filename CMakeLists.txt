@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 add_subdirectory(commons)
 set(COMMONS_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/commons/include)
+set(UVM_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/uvm/sc/include)
 find_package(SystemC REQUIRED COMPONENTS UVM)
 add_subdirectory(tlm)
 add_subdirectory(uvm)
