@@ -6,7 +6,6 @@ namespace uv {
   
   class test: public uvm::test {
     
-    
   };
 }
 #endif //TEST_HPP
