@@ -9,10 +9,8 @@ class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
  public:
   UVM_OBJECT_UTILS(uv::ram_driver)
 
-  explicit ram_driver(const uvm::uvm_component_name& name)
-      : uvm::uvm_driver<ram_sequence_item>{name}, m_item{nullptr} {}
-
-  explicit ram_driver(const std::string& name = "ram_driver")
+  
+  ram_driver(const std::string& name = "ram_driver")
       : uvm::uvm_driver<ram_sequence_item>{uvm::uvm_component_name{
             name.c_str()}},
         m_item{nullptr} {}

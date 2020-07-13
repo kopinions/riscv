@@ -9,9 +9,6 @@ class ram_monitor : public uvm::uvm_monitor {
  public:
   UVM_OBJECT_UTILS(uv::ram_monitor)
 
-  explicit ram_monitor(const uvm::uvm_component_name& name)
-      : uvm::uvm_monitor{name} {}
-
   ram_monitor(const std::string& name = "ram_monitor")
       : uvm::uvm_monitor{uvm::uvm_component_name{name.c_str()}} {}
   ~ram_monitor() = default;

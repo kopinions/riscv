@@ -12,12 +12,6 @@ class ram_agent : public uvm::uvm_agent {
  public:
   UVM_OBJECT_UTILS(uv::ram_agent)
 
-  explicit ram_agent(const uvm::uvm_component_name& name)
-      : uvm::uvm_agent{name},
-        m_sequencer{nullptr},
-        m_driver{nullptr},
-        m_monitor{nullptr} {}
-
   explicit ram_agent(const std::string& name = "ram_agent")
       : uvm::uvm_agent{uvm::uvm_component_name{name.c_str()}},
         m_sequencer{nullptr},
