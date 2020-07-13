@@ -1,6 +1,7 @@
 #ifndef RAM_SEQUENCE
 #define RAM_SEQUENCE
 #include <uvm>
+#include <vector>
 
 #include "ram_sequence_item.hpp"
 
@@ -16,6 +17,7 @@ class ram_sequence : public uvm::uvm_sequence<ram_sequence_item> {
 
  protected:
   void pre_body() override {
+    auto starting_phase = get_starting_phase(); 
     if (starting_phase != nullptr) {
       starting_phase->raise_objection(this);
     }
@@ -31,12 +33,13 @@ class ram_sequence : public uvm::uvm_sequence<ram_sequence_item> {
   };
 
   void post_body() override {
+    auto starting_phase = get_starting_phase();
     if (starting_phase != nullptr) {
       starting_phase->drop_objection(this);
     }
   };
 
-  std::vector<tx_sequence_item> m_items;
+  std::vector<ram_sequence_item> m_items;
 };
 
 }  // namespace uv

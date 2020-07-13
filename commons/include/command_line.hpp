@@ -18,7 +18,7 @@ class command_line_argument {
   };
 
   void operator()(const std::string& arg) const {
-    m_callback(arg.substr(0, m_name.size()));
+    m_callback(arg.substr(m_name.size(), arg.size() - m_name.size()));
   };
 
  private:

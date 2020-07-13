@@ -4,6 +4,6 @@
   
 int sc_main(int argc, char*argv[]) {
   command_line{argc, argv};
-  uv::testbench<uv::ram_agent, uv::ram_agent> tb (nullptr, nullptr);
+  uvm::run_test();
   return 0;
 }

@@ -2,25 +2,34 @@
 #define TESTBENCH_HPP
 #include <uvm>
 
+#include "ram_agent.hpp"
+
 namespace uv {
 
-template <class... Ts>
-struct testbench : public uvm::uvm_env {
-  UVM_OBJECT_UTILS(uv::testbench<Ts...>)
+class testbench : public uvm::uvm_env {
+ public:
+  UVM_COMPONENT_UTILS(uv::testbench)
+
   testbench() : uvm::uvm_env{uvm::uvm_component_name{"testbench"}} {}
-};
 
-template <class T, class... Ts>
-struct testbench<T, Ts...> : public testbench<Ts...> {
-  testbench(T* t, Ts*... ts) : testbench<Ts...>(ts...), tail{t} {}
-  T* tail;
+  testbench(const std::string& name = "testbench")
+      : uvm::uvm_env{uvm::uvm_component_name{name.c_str()}} {}
 
+ protected:
   virtual void build_phase(uvm::uvm_phase& phase) override {
-    testbench<Ts...>::build_phase(phase);
-    tail = T::type_id::create(T::m_register_type_name(), this);
+    uvm::uvm_env::build_phase(phase);
+    m_ram_agent = ram_agent::type_id::create("ram_agent", this);
+    if (m_ram_agent == nullptr) {
+      UVM_FATAL(get_name(),
+                "Cannot create Ram agent!"
+                " Simulation aborted!");
+    }
   }
 
   virtual void connect_phase(uvm::uvm_phase& phase) override {}
+
+ private:
+  ram_agent* m_ram_agent;
 };
 
 }  // namespace uv

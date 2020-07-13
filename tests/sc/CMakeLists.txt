@@ -1,7 +1,8 @@
 set(hdl_name cpu)
 
 add_executable(${hdl_name}_test
-        cpu.cpp
+  fetch_test.cpp
+  main.cpp
         )
 
 target_compile_options(${hdl_name}_test
@@ -23,7 +24,7 @@ target_link_libraries(${hdl_name}_test
         PUBLIC uvm-systemc systemc)
 
 set(TESTS
-        test
+        fetch_test
         )
 
 foreach (test ${TESTS})
