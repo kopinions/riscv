@@ -9,12 +9,9 @@ namespace uv {
 class test : public uvm::uvm_test {
  public:
   UVM_COMPONENT_UTILS(uv::test)
-  test()
-      : uvm::uvm_test{uvm::uvm_component_name{"test"}}, m_testbench{nullptr} {}
+  test() : uvm::uvm_test{uvm::uvm_component_name{"test"}}, m_testbench{nullptr} {}
 
-  test(const std::string& name = "test")
-      : uvm::uvm_test{uvm::uvm_component_name{name.c_str()}},
-        m_testbench{nullptr} {}
+  test(const std::string& name = "test") : uvm::uvm_test{uvm::uvm_component_name{name.c_str()}}, m_testbench{nullptr} {}
 
   virtual void build_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_test::build_phase(phase);
@@ -27,13 +24,14 @@ class test : public uvm::uvm_test {
     }
   }
 
-  [[noreturn]] void run_phase(uvm::uvm_phase& phase) override {
+  virtual void run_phase(uvm::uvm_phase& phase) override {
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
-    while (true) {
-      UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
-      sleep(1);
-    }
+    phase.raise_objection(this);
+
+    //    m_sequence->start(m_testbench->sequencer);
+
+    phase.drop_objection(this);
   }
 
   void extract_phase(uvm::uvm_phase& phase) override {

@@ -21,9 +21,38 @@ class ram_agent : public uvm::uvm_agent {
   ~ram_agent() = default;
 
  protected:
-  void build_phase(uvm::uvm_phase& phase) override {}
+  void build_phase(uvm::uvm_phase& phase) override {
+    uvm::uvm_agent::build_phase(phase);
 
-  void connect_phase(uvm::uvm_phase& phase) override {
+    UVM_INFO(get_name(), "Build phase", uvm::UVM_FULL);
+
+    if (get_is_active() == uvm::UVM_ACTIVE) {
+      UVM_INFO(get_name(), "is set to UVM_ACTIVE", uvm::UVM_FULL);
+
+      m_sequencer = ram_sequencer::type_id::create("ram_sequencer", this);
+      if (!m_sequencer) {
+        UVM_FATAL(get_name(),
+                  "Sequencer not defined!"
+                  " Simulation aborted!");
+      }
+
+      m_driver = ram_driver::type_id::create("ram_driver", this);
+      if (!m_driver) {
+        UVM_FATAL(get_name(),
+                  "Driver not defined!"
+                  " Simulation aborted!");
+      }
+    } else {
+      UVM_INFO(get_name(), "is set to UVM_PASSIVE", uvm::UVM_FULL);
+    }
+
+    m_monitor = ram_monitor::type_id::create("ram_monitor", this);
+    if (!m_monitor) {
+      UVM_FATAL(get_name(), "Monitor not defined! Simulation aborted!");
+    }
+  }
+
+  virtual void connect_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_agent::connect_phase(phase);
     UVM_INFO(get_name(), "Connect phase", uvm::UVM_FULL);
 

@@ -9,20 +9,17 @@ class ram_monitor : public uvm::uvm_monitor {
  public:
   UVM_OBJECT_UTILS(uv::ram_monitor)
 
-  ram_monitor(const std::string& name = "ram_monitor")
-      : uvm::uvm_monitor{uvm::uvm_component_name{name.c_str()}} {}
+  ram_monitor(const std::string& name = "ram_monitor") : uvm::uvm_monitor{uvm::uvm_component_name{name.c_str()}} {}
   ~ram_monitor() = default;
 
  protected:
-  void build_phase(uvm::uvm_phase& phase) override {}
+  virtual void build_phase(uvm::uvm_phase& phase) override {}
 
-  [[noreturn]] void run_phase(uvm::uvm_phase& phase) override {
+  virtual void run_phase(uvm::uvm_phase& phase) override {
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
-    while (true) {
-      UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
-      sleep(1);
-    }
+    UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
+    sleep(1);
   }
   std::string a;
 };

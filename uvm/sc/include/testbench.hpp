@@ -12,8 +12,7 @@ class testbench : public uvm::uvm_env {
 
   testbench() : uvm::uvm_env{uvm::uvm_component_name{"testbench"}} {}
 
-  testbench(const std::string& name = "testbench")
-      : uvm::uvm_env{uvm::uvm_component_name{name.c_str()}} {}
+  testbench(const std::string& name = "testbench") : uvm::uvm_env{uvm::uvm_component_name{name.c_str()}} {}
 
  protected:
   virtual void build_phase(uvm::uvm_phase& phase) override {
@@ -24,9 +23,11 @@ class testbench : public uvm::uvm_env {
                 "Cannot create Ram agent!"
                 " Simulation aborted!");
     }
+
+    uvm::uvm_config_db<int>::set(this, "ram_agent", "is_active", uvm::UVM_ACTIVE);
   }
 
-  virtual void connect_phase(uvm::uvm_phase& phase) override {}
+  virtual void connect_phase(uvm::uvm_phase& phase) override { uvm::uvm_env::connect_phase(phase); }
 
  private:
   ram_agent* m_ram_agent;

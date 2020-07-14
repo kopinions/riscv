@@ -9,15 +9,18 @@ class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
  public:
   UVM_OBJECT_UTILS(uv::ram_driver)
 
-  
   ram_driver(const std::string& name = "ram_driver")
-      : uvm::uvm_driver<ram_sequence_item>{uvm::uvm_component_name{
-            name.c_str()}},
-        m_item{nullptr} {}
+      : uvm::uvm_driver<ram_sequence_item>{uvm::uvm_component_name{name.c_str()}}, m_item{nullptr} {}
   ~ram_driver() = default;
 
  protected:
-  void build_phase(uvm::uvm_phase& phase) override {}
+  void build_phase(uvm::uvm_phase& phase) override {
+    m_item = ram_sequence_item::type_id::create("ram_sequence_item", this);
+
+    if (m_item == nullptr) {
+      UVM_FATAL(get_name(), "Cannot create ram sequence item!");
+    }
+  }
 
   [[noreturn]] void run_phase(uvm::uvm_phase& phase) override {
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
@@ -29,7 +32,7 @@ class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
     }
   }
 
-  ram_sequence_item* m_item;
+  ram_sequence_item* m_item{};
 };
 }  // namespace uv
 #endif  // RAM_DRIVER
