@@ -2,6 +2,7 @@
 #define RAM_DRIVER
 #include <uvm>
 
+#include "ibus.hpp"
 #include "ram_sequence_item.hpp"
 
 namespace uv {
@@ -20,6 +21,11 @@ class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
     if (m_item == nullptr) {
       UVM_FATAL(get_name(), "Cannot create ram sequence item!");
     }
+
+    auto ok = uvm::uvm_config_db<ibus*>::get(this, "*", "vif", m_vif);
+    if (!ok) {
+      UVM_FATAL(get_name(), "Virtual interface not defined!Simulation aborted!");
+    }
   }
 
   [[noreturn]] void run_phase(uvm::uvm_phase& phase) override {
@@ -33,6 +39,7 @@ class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
   }
 
   ram_sequence_item* m_item{};
+  ibus* m_vif;
 };
 }  // namespace uv
 #endif  // RAM_DRIVER

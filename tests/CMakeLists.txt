@@ -1,1 +1,2 @@
-add_subdirectory(sc)
+add_subdirectory(tlm)
+add_subdirectory(rtl)
