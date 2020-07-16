@@ -7,10 +7,10 @@
 namespace uv {
 class ram_monitor : public uvm::uvm_monitor {
  public:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  DISABLE_WARNING_PUSH
+  DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_COMPONENT_UTILS(uv::ram_monitor)
-#pragma GCC diagnostic pop
+  DISABLE_WARNING_POP
 
   ram_monitor(const std::string& name = "ram_monitor") : uvm::uvm_monitor{uvm::uvm_component_name{name.c_str()}} {}
   ~ram_monitor() = default;

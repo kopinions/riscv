@@ -1,6 +1,7 @@
 #ifndef RAM_DRIVER
 #define RAM_DRIVER
 #include <uvm>
+#include <warnings.hpp>
 
 #include "ibus.hpp"
 #include "ram_sequence_item.hpp"
@@ -8,10 +9,10 @@
 namespace uv {
 class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
  public:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  DISABLE_WARNING_PUSH
+  DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_COMPONENT_UTILS(uv::ram_driver)
-#pragma GCC diagnostic pop
+  DISABLE_WARNING_POP
 
   ram_driver(const std::string& name = "ram_driver")
       : uvm::uvm_driver<ram_sequence_item>{uvm::uvm_component_name{name.c_str()}}, m_item{nullptr} {}

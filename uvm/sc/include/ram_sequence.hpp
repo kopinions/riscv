@@ -2,6 +2,7 @@
 #define RAM_SEQUENCE
 #include <uvm>
 #include <vector>
+#include <warnings.hpp>
 
 #include "ram_sequence_item.hpp"
 #include "ram_sequencer.hpp"
@@ -9,11 +10,10 @@
 namespace uv {
 class ram_sequence : public uvm::uvm_sequence<ram_sequence_item> {
  public:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  DISABLE_WARNING_PUSH
+  DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_OBJECT_UTILS(uv::ram_sequence)
-#pragma GCC diagnostic pop
-
+  DISABLE_WARNING_POP
 
   ram_sequence() : ram_sequence{"ram_sequence"} {}
 
@@ -47,7 +47,7 @@ class ram_sequence : public uvm::uvm_sequence<ram_sequence_item> {
   };
 
   std::vector<ram_sequence_item> m_items;
-  uv::ram_sequencer *m_ram_sequencer;
+  uv::ram_sequencer* m_ram_sequencer;
 };
 
 }  // namespace uv

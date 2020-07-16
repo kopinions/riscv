@@ -5,10 +5,10 @@
 namespace uv {
 class ram_sequence_item : public uvm::uvm_sequence_item {
  public:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  DISABLE_WARNING_PUSH
+  DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_OBJECT_UTILS(uv::ram_sequence_item)
-#pragma GCC diagnostic pop
+  DISABLE_WARNING_POP
 
   ram_sequence_item() {}
 

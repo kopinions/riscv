@@ -3,10 +3,11 @@
 
 class fetch_test : public uv::test {
  public:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  DISABLE_WARNING_PUSH
+  DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_COMPONENT_UTILS(fetch_test)
-#pragma GCC diagnostic pop
+  DISABLE_WARNING_POP
+
   explicit fetch_test(const std::string& name = "fetch_test") : uv::test{name} {}
 
  protected:
