@@ -4,7 +4,7 @@
 
 class ibus : public sc_core::sc_module {
  public:
-  explicit ibus(sc_core::sc_module_name& name) : sc_core::sc_module{name} {};
+  explicit ibus(const sc_core::sc_module_name& name) : sc_core::sc_module{name} {};
   virtual std::uint8_t read(const bitstream& addr, std::size_t offset) const = 0;
   virtual void write(const bitstream& addr, std::size_t offset, std::uint8_t value) = 0;
 
