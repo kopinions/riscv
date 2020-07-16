@@ -31,10 +31,35 @@ if (NOT SYSTEMC_FOUND)
             DEPENDS SystemC
             )
 
-
     include_directories(external/SystemC/include)
     link_directories(external/SystemC/lib)
 endif ()
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG        release-1.10.0
+)
+FetchContent_GetProperties(googletest)
+if(NOT googletest_POPULATED)
+    FetchContent_Populate(googletest)
+    add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
+    include_directories(${googletest_SOURCE_DIR}/googletest/include)
+endif()
+
+include(GoogleTest)
+
+enable_testing()
+
+macro(gtest TESTNAME)
+    add_executable(${TESTNAME} ${ARGN})
+    target_link_libraries(${TESTNAME} PUBLIC gtest gmock gtest_main)
+
+    gtest_discover_tests(${TESTNAME}
+            TEST_PREFIX "${TESTNAME}."
+            PROPERTIES FOLDER "tests")
+endmacro()
 
 add_subdirectory(tlm)
 add_subdirectory(uvm)

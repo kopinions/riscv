@@ -1,0 +1,1 @@
+gtest(bitstream_test bitstream_test.cpp)
