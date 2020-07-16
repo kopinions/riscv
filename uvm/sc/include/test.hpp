@@ -8,7 +8,10 @@ namespace uv {
 
 class test : public uvm::uvm_test {
  public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
   UVM_COMPONENT_UTILS(uv::test)
+#pragma GCC diagnostic pop
   test() : uvm::uvm_test{uvm::uvm_component_name{"test"}}, m_testbench{nullptr} {}
 
   test(const std::string& name = "test") : uvm::uvm_test{uvm::uvm_component_name{name.c_str()}}, m_testbench{nullptr} {}

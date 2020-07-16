@@ -3,8 +3,11 @@
 
 class fetch_test : public uv::test {
  public:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
   UVM_COMPONENT_UTILS(fetch_test)
-  fetch_test(const std::string& name = "fetch_test") : uv::test{name} {}
+#pragma GCC diagnostic pop
+  explicit fetch_test(const std::string& name = "fetch_test") : uv::test{name} {}
 
  protected:
   virtual void build_phase(uvm::uvm_phase& phase) override {
@@ -15,15 +18,12 @@ class fetch_test : public uv::test {
                 "Cannot create ram sequence!"
                 " Simulation aborted!");
     }
-    uvm::uvm_config_db<uv::ram_sequence*>::set(this, "*.m_sequencer.run_phase",
-                                               "default_sequence", ram_seq);
+    uvm::uvm_config_db<uv::ram_sequence*>::set(this, "*.m_sequencer.run_phase", "default_sequence", ram_seq);
   }
 
-  virtual void run_phase(uvm::uvm_phase& phase) override {
+  virtual void run_phase(uvm::uvm_phase& phase) override {}
 
-  }
-
-  virtual void start_of_simulation_phase(uvm::uvm_phase &phase) override {
+  virtual void start_of_simulation_phase(uvm::uvm_phase& phase) override {
     uv::test::start_of_simulation_phase(phase);
     uvm::print_topology();
   }

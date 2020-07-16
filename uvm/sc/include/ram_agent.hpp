@@ -6,11 +6,13 @@
 #include "ram_monitor.hpp"
 #include "ram_sequence_item.hpp"
 #include "ram_sequencer.hpp"
-
 namespace uv {
 class ram_agent : public uvm::uvm_agent {
  public:
-  UVM_OBJECT_UTILS(uv::ram_agent)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  UVM_COMPONENT_UTILS(uv::ram_agent)
+#pragma GCC diagnostic pop
 
   explicit ram_agent(const std::string& name = "ram_agent")
       : uvm::uvm_agent{uvm::uvm_component_name{name.c_str()}},

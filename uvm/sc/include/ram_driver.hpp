@@ -8,7 +8,10 @@
 namespace uv {
 class ram_driver : public uvm::uvm_driver<ram_sequence_item> {
  public:
-  UVM_OBJECT_UTILS(uv::ram_driver)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
+  UVM_COMPONENT_UTILS(uv::ram_driver)
+#pragma GCC diagnostic pop
 
   ram_driver(const std::string& name = "ram_driver")
       : uvm::uvm_driver<ram_sequence_item>{uvm::uvm_component_name{name.c_str()}}, m_item{nullptr} {}
