@@ -1,10 +1,13 @@
 #ifndef DUMMY_BUS_HPP
 #define DUMMY_BUS_HPP
+#include <tlm_utils/simple_target_socket.h>
+
 #include "ibus.hpp"
 
 template <std::size_t ADDR_WIDTH = 64, std::size_t DATA_WIDTH = 64>
 class dummy_bus : public ibus {
  public:
+  tlm_utils::simple_target_socket<dummy_bus<ADDR_WIDTH, DATA_WIDTH>> target_socket;
   using address_type = sc_dt::sc_bv<ADDR_WIDTH>;
   using data_type = sc_dt::sc_bv<DATA_WIDTH>;
 
