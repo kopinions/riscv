@@ -24,12 +24,13 @@ class matrix : public sc_core::sc_module {
     SC_THREAD(operating);
   };
 
- protected:
+ private:
   bus* m_code;
   bus* m_data;
   tlm_utils::simple_target_socket<matrix> m_irq;
   registers* m_registers;
   uint64_t m_pc;
+  friend class matrix_system;
 };
 
 #endif  // MATRIX_HPP

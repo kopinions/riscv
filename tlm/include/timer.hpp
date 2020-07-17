@@ -6,9 +6,10 @@
 class timer : public sc_core::sc_module {
  public:
   timer(const sc_core::sc_module_name &name) : sc_core::sc_module{name} {}
+
  private:
   tlm_utils::simple_initiator_socket<timer> irq_line;
-
+  friend class matrix_system;
 };
 
 #endif  // TIMER_HPP
