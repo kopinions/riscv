@@ -29,6 +29,7 @@ class test : public uvm::uvm_test {
   }
 
   virtual void run_phase(uvm::uvm_phase& phase) override {
+    uvm::uvm_test::run_phase(phase);
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
     phase.raise_objection(this);
@@ -46,7 +47,7 @@ class test : public uvm::uvm_test {
   void report_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_test::report_phase(phase);
 
-    UVM_INFO(get_name(), "TEST PASSED", uvm::UVM_NONE);
+    UVM_INFO(get_name(), "TEST PASSED", uvm::UVM_FULL);
 
     uvm::uvm_root::get()->set_finish_on_completion(true);
     uvm::uvm_report_server::get_server()->report_summarize();

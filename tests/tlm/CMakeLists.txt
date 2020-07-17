@@ -34,6 +34,7 @@ foreach (test ${TESTS})
             COMMAND
             ${hdl_name}_test
             +UVM_TESTNAME=${test}
+            +UVM_VERBOSITY=UVM_FULL
             +uvm_set_config_string=*,trace_filename,${hdl_name}_${test}
             WORKING_DIRECTORY
             "${CMAKE_BINARY_DIR}/sc/uts/${hdl_name}"

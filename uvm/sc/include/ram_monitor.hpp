@@ -19,12 +19,14 @@ class ram_monitor : public uvm::uvm_monitor {
   virtual void build_phase(uvm::uvm_phase& phase) override {}
 
   virtual void run_phase(uvm::uvm_phase& phase) override {
-    UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
+    int i = 0;
+    while (i++<10) {
+      UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
-    UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
-    sleep(1);
+      UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
+      sleep(1);
+    }
   }
-  std::string a;
 };
 }  // namespace uv
 #endif  // RAM_MONITOR

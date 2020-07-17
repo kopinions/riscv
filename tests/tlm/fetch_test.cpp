@@ -19,7 +19,8 @@ class fetch_test : public uv::test {
                 "Cannot create ram sequence!"
                 " Simulation aborted!");
     }
-    uvm::uvm_config_db<uv::ram_sequence*>::set(this, "*.m_sequencer.run_phase", "default_sequence", ram_seq);
+    uvm::uvm_config_db<uvm::uvm_object_wrapper*>::set(this, "*.m_sequencer.run_phase", "default_sequence",
+                                                      uv::ram_sequence::type_id::get());
   }
 
   virtual void run_phase(uvm::uvm_phase& phase) override {}

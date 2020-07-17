@@ -32,14 +32,14 @@ class ram_agent : public uvm::uvm_agent {
     if (get_is_active() == uvm::UVM_ACTIVE) {
       UVM_INFO(get_name(), "is set to UVM_ACTIVE", uvm::UVM_FULL);
 
-      m_sequencer = ram_sequencer::type_id::create("ram_sequencer", this);
+      m_sequencer = ram_sequencer::type_id::create("m_sequencer", this);
       if (!m_sequencer) {
         UVM_FATAL(get_name(),
                   "Sequencer not defined!"
                   " Simulation aborted!");
       }
 
-      m_driver = ram_driver::type_id::create("ram_driver", this);
+      m_driver = ram_driver::type_id::create("m_driver", this);
       if (!m_driver) {
         UVM_FATAL(get_name(),
                   "Driver not defined!"
@@ -49,7 +49,7 @@ class ram_agent : public uvm::uvm_agent {
       UVM_INFO(get_name(), "is set to UVM_PASSIVE", uvm::UVM_FULL);
     }
 
-    m_monitor = ram_monitor::type_id::create("ram_monitor", this);
+    m_monitor = ram_monitor::type_id::create("m_monitor", this);
     if (!m_monitor) {
       UVM_FATAL(get_name(), "Monitor not defined! Simulation aborted!");
     }
