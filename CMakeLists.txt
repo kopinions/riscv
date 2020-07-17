@@ -13,7 +13,7 @@ find_package(SystemC)
 if (NOT SYSTEMC_FOUND)
     include(ExternalProject)
     ExternalProject_Add(SystemC
-            URL http://localhost:8080/systemc-2.3.3.tar.gz
+            URL https://www.accellera.org/images/downloads/standards/systemc/systemc-2.3.3.tar.gz
             PREFIX ${CMAKE_SOURCE_DIR}/external/SystemC
             CMAKE_COMMAND "${CMAKE_COMMAND}"
             CMAKE_ARGS
@@ -22,7 +22,7 @@ if (NOT SYSTEMC_FOUND)
             BUILD_COMMAND make -j$(nproc) && make install -j$(nproc)
             )
     ExternalProject_Add(UVM-SystemC
-            URL http://localhost:8080/archive.tar
+            URL https://www.accellera.org/images/downloads/drafts-review/uvm-systemc-10-beta3tar.gz
             PREFIX ${CMAKE_SOURCE_DIR}/external/SystemC
             CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++11 <SOURCE_DIR>/configure --enable-shared
                 --prefix=<INSTALL_DIR>
