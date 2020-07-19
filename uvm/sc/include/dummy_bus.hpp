@@ -7,11 +7,16 @@
 template <std::size_t ADDR_WIDTH = 64, std::size_t DATA_WIDTH = 64>
 class dummy_bus : public ibus {
  public:
-  tlm_utils::simple_target_socket<dummy_bus<ADDR_WIDTH, DATA_WIDTH>> target_socket;
+
   using address_type = sc_dt::sc_bv<ADDR_WIDTH>;
   using data_type = sc_dt::sc_bv<DATA_WIDTH>;
 
-  dummy_bus(const sc_core::sc_module_name& name) : ibus(name) {}
+  tlm::tlm_sync_enum nb_transport_fw(tlm::tlm_generic_payload&, tlm::tlm_phase&, sc_core::sc_time&) {
+    return tlm::TLM_UPDATED;
+  }
+
+  dummy_bus(const sc_core::sc_module_name& name) : ibus(name) {
+  }
 
   std::uint8_t read(const bitstream& addr, std::size_t offset) const override {
     address_type m_addr{};
@@ -37,7 +42,7 @@ class dummy_bus : public ibus {
     s_data.write(m_data);
   };
 
- private:
+ public:
   mutable sc_core::sc_signal<address_type> s_addr{"addr"};
   sc_core::sc_signal<data_type> s_data{"data"};
 };

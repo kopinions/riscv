@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS, ON)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 include_directories(commons/include)
+include_directories(bridges)
 include_directories(tlm/include)
 include_directories(uvm/sc/include)
 

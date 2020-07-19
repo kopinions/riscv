@@ -16,17 +16,28 @@ class ram_monitor : public uvm::uvm_monitor {
   ~ram_monitor() = default;
 
  protected:
-  virtual void build_phase(uvm::uvm_phase& phase) override {}
+  virtual void build_phase(uvm::uvm_phase& phase) override {
+    uvm::uvm_monitor::build_phase(phase);
+    auto ok = uvm::uvm_config_db<ibus*>::get(this, "*", "vif", m_vif);
+    if (!ok) {
+      UVM_FATAL(get_name(), "Virtual interface not defined!Simulation aborted!");
+    }
+  }
 
   virtual void run_phase(uvm::uvm_phase& phase) override {
-    int i = 0;
-    while (i++<10) {
+    ram_sequence_item item;
+    item_collected_port.write(item);
+    while (true) {
       UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
       UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
       sleep(1);
     }
   }
+
+ private:
+  ibus* m_vif;
+  uvm::uvm_analysis_port<ram_sequence_item> item_collected_port;
 };
 }  // namespace uv
 #endif  // RAM_MONITOR

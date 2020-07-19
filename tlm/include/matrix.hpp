@@ -19,7 +19,11 @@ class matrix : public sc_core::sc_module {
  public:
   void execute(instruction<INSTRUCTION_WIDTH>* ins) { ins->applied(m_registers, m_mm); };
 
-  void operating(){};
+  void operating(){
+    while (true) {
+      
+    }
+  };
   void interrupted(tlm::tlm_generic_payload&, sc_core::sc_time&) {}
   matrix(const sc_core::sc_module_name& name) : sc_core::sc_module{name} {
     m_irq.register_b_transport(this, &matrix::interrupted);
