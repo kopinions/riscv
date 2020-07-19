@@ -11,10 +11,6 @@ class dummy_bus : public ibus {
   using address_type = sc_dt::sc_bv<ADDR_WIDTH>;
   using data_type = sc_dt::sc_bv<DATA_WIDTH>;
 
-  tlm::tlm_sync_enum nb_transport_fw(tlm::tlm_generic_payload&, tlm::tlm_phase&, sc_core::sc_time&) {
-    return tlm::TLM_UPDATED;
-  }
-
   dummy_bus(const sc_core::sc_module_name& name) : ibus(name) {
   }
 
@@ -25,8 +21,8 @@ class dummy_bus : public ibus {
     for (auto i = 0u; i < size; i++) {
       m_addr[i] = bool(addr[i]);
     }
-    s_addr.write(m_addr);
-    data_type data = s_data.read();
+    m_raddr.write(m_addr);
+    data_type data = m_rdata.read();
     return std::uint8_t(data(int(offset * 8), int(offset)).to_uint());
   };
 
@@ -37,13 +33,17 @@ class dummy_bus : public ibus {
     for (auto i = 0u; i < size; i++) {
       m_addr[i] = bool(addr[i]);
     }
-    s_addr.write(m_addr);
+    m_raddr.write(m_addr);
     m_data[8u * offset] = value;
-    s_data.write(m_data);
+    m_rdata.write(m_data);
   };
 
  public:
-  mutable sc_core::sc_signal<address_type> s_addr{"addr"};
-  sc_core::sc_signal<data_type> s_data{"data"};
+  sc_core::sc_in<bool> m_clk;
+  sc_core::sc_in<bool> m_resetn;
+  mutable sc_core::sc_signal<address_type> m_raddr{"addr"};
+  mutable sc_core::sc_signal<address_type> m_waddr{"addr"};
+  sc_core::sc_signal<data_type> m_rdata{"data"};
+  sc_core::sc_signal<data_type> m_wdata{"data"};
 };
 #endif  // DUMMY_BUS_HPP
