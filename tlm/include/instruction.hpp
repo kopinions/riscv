@@ -10,6 +10,6 @@
 template <unsigned int INSTRUCTION_WIDTH = 32>
 class instruction : public sc_core::sc_module {
  public:
-  virtual void applied(registers* regs, mm* mm) = 0;
+  virtual void applied(registers<INSTRUCTION_WIDTH>& regs, mm* mm) = 0;
 };
 #endif  // INSTRUCTION_HPP
