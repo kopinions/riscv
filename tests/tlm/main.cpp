@@ -34,13 +34,9 @@ int sc_main(int argc, char* argv[]) {
   t2a_data.m_raddr(data_vif.m_raddr);
   t2a_data.m_waddr(data_vif.m_waddr);
 
-  tlm2axi4<32> t2a_code{"code_bridge"};
-  tlm2axi4<32> t2a_data{"data_bridge"};
-
   matrix_system dut{"matrix_system"};
   dut.m_code->m_initiators.bind(t2a_code.m_target);
   dut.m_data->m_initiators.bind(t2a_data.m_target);
-  sc_core::sc_start();
 
   uvm::uvm_config_db<ibus*>::set(nullptr, "*.ram_agent.*", "vif", &code_vif);
 

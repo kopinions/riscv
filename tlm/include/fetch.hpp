@@ -13,9 +13,9 @@ class fetch : public sc_core::sc_module {
   fetch(const sc_core::sc_module_name& nm) : sc_core::sc_module{nm} { SC_THREAD(operating); }
 
   [[noreturn]] void operating() {
-    std::cout << "test" << std::endl;
     while (true) {
-      sleep(1);
+      std::cout << "test" << std::endl;
+      wait();
     }
   };
 };

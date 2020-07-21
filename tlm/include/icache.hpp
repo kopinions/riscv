@@ -15,7 +15,8 @@ class icache : public sc_core::sc_module {
 
   [[noreturn]] void operating() {
     while (true) {
-      sleep(1);
+      std::cout << "test" << std::endl;
+      wait();
     }
   };
 };
