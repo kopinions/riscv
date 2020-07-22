@@ -34,6 +34,11 @@ class registers : public sc_core::sc_module {
     }
   }
 
+  registers(const registers &) = delete;
+  registers(registers &&) = delete;
+  registers &operator=(registers &) = delete;
+  registers &operator=(registers &&) = delete;
+
   type read(name name) { return m_bank[name]; };
 
   void write(name name, type value) { m_bank[name] = value; }

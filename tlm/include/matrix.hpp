@@ -16,6 +16,7 @@
 #include "instruction.hpp"
 #include "mm.hpp"
 #include "registers.hpp"
+#include <memory>
 
 template <unsigned int ADDR_WIDTH = 32, unsigned int DATA_WIDTH = 32>
 class matrix : public sc_core::sc_module {
@@ -24,12 +25,12 @@ class matrix : public sc_core::sc_module {
 
   matrix(const sc_core::sc_module_name& name)
       : sc_core::sc_module{name},
-        m_icache{"icache"},
-        m_fetch{"fetch"},
+        m_registers(std::make_shared<registers<DATA_WIDTH>>("registers")),
+        m_icache{"icache", m_registers},
+        m_fetch{"fetch", m_registers},
         m_decode{"decode"},
         m_exec{"exec"},
-        m_dcache{"dcacne"},
-        m_registers{"registers"} {
+        m_dcache{"dcacne"} {
     m_irq.register_b_transport(this, &matrix::interrupted);
 
     m_fetch.m_icache_initiator.bind(m_icache.m_fetch_target);
@@ -39,14 +40,13 @@ class matrix : public sc_core::sc_module {
   };
 
  private:
-
+  std::shared_ptr<registers<DATA_WIDTH>> m_registers;
   tlm_utils::simple_target_socket<matrix> m_irq;
-  icache m_icache;
-  fetch m_fetch;
+  icache<DATA_WIDTH> m_icache;
+  fetch<DATA_WIDTH> m_fetch;
   decode m_decode;
   exec m_exec;
   dcache m_dcache;
-  registers<DATA_WIDTH> m_registers;
   friend class matrix_system;
 };
 

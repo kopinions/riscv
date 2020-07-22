@@ -5,19 +5,41 @@
 
 #include <systemc>
 
+#include "registers.hpp"
+
+template <unsigned int BITS = 32>
 class icache : public sc_core::sc_module {
  public:
   SC_HAS_PROCESS(icache);
   tlm_utils::simple_target_socket<icache> m_fetch_target;
   tlm_utils::simple_initiator_socket<icache> m_code_initiator;
 
-  icache(const sc_core::sc_module_name& nm) : sc_core::sc_module(nm) { SC_THREAD(operating); }
+  icache(const sc_core::sc_module_name& nm, std::shared_ptr<registers<BITS>> registers)
+      : sc_core::sc_module{nm}, m_registers{registers} {
+    SC_THREAD(operating);
+  }
 
   [[noreturn]] void operating() {
     while (true) {
+      uint32_t INSTR;
+      tlm::tlm_generic_payload trans{};
+      trans.set_command(tlm::TLM_READ_COMMAND);
+      trans.set_data_ptr(reinterpret_cast<unsigned char*>(&INSTR));
+      trans.set_data_length(4);
+      trans.set_streaming_width(4);  // = data_length to indicate no streaming
+      trans.set_byte_enable_ptr(0);  // 0 indicates unused
+      trans.set_dmi_allowed(false);  // Mandatory initial value
+      trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
+      sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
+      trans.set_address(m_registers->read(registers<BITS>::name::PC));
+      m_code_initiator->b_transport(trans, delay);
+
       std::cout << "test" << std::endl;
       wait();
     }
   };
+
+ private:
+  std::shared_ptr<registers<BITS>> m_registers;
 };
 #endif  // ICACHE_HPP

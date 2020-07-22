@@ -10,13 +10,14 @@ class tlm2axi4 : public sc_core::sc_module {
   using address_type = sc_dt::sc_bv<ADDR_WIDTH>;
   using data_type = sc_dt::sc_bv<DATA_WIDTH>;
   sc_core::sc_in<sc_dt::sc_bv<ADDR_WIDTH>> m_waddr;
-  sc_core::sc_out<sc_dt::sc_bv<ADDR_WIDTH>> m_raddr;
   sc_core::sc_out<sc_dt::sc_bv<DATA_WIDTH>> m_wdata;
+  sc_core::sc_out<sc_dt::sc_bv<ADDR_WIDTH>> m_raddr;
   sc_core::sc_in<sc_dt::sc_bv<DATA_WIDTH>> m_rdata;
   sc_core::sc_in<bool> m_clk;
   sc_core::sc_in<bool> m_resetn;
 
   tlm::tlm_sync_enum nb_transport_fw(tlm::tlm_generic_payload&, tlm::tlm_phase&, sc_core::sc_time&) {
+    std::cout << "bridge received" << std::endl;
     return tlm::TLM_UPDATED;
   }
 

@@ -7,7 +7,6 @@
 template <std::size_t ADDR_WIDTH = 64, std::size_t DATA_WIDTH = 64>
 class dummy_bus : public ibus {
  public:
-
   using address_type = sc_dt::sc_bv<ADDR_WIDTH>;
   using data_type = sc_dt::sc_bv<DATA_WIDTH>;
 
