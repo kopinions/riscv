@@ -6,6 +6,7 @@
 template <unsigned int ADDR_WIDTH, unsigned int DATA_WIDTH = 32>
 class tlm2axi4 : public sc_core::sc_module {
  public:
+  SC_HAS_PROCESS(tlm2axi4);
   tlm_utils::simple_target_socket<tlm2axi4<DATA_WIDTH>> m_target;
   using address_type = sc_dt::sc_bv<ADDR_WIDTH>;
   using data_type = sc_dt::sc_bv<DATA_WIDTH>;
@@ -16,13 +17,77 @@ class tlm2axi4 : public sc_core::sc_module {
   sc_core::sc_in<bool> m_clk;
   sc_core::sc_in<bool> m_resetn;
 
-  tlm::tlm_sync_enum nb_transport_fw(tlm::tlm_generic_payload&, tlm::tlm_phase&, sc_core::sc_time&) {
-    std::cout << "bridge received" << std::endl;
-    return tlm::TLM_UPDATED;
+  tlm2axi4(const sc_core::sc_module_name& name) : sc_module(name) {
+    m_target.register_b_transport(this, &tlm2axi4<ADDR_WIDTH, DATA_WIDTH>::b_transport);
+    SC_THREAD(read_address_phase)
+    SC_THREAD(write_address_phase)
+    SC_THREAD(read_response_phase)
+    SC_THREAD(write_data_phase)
+    SC_THREAD(write_response_phase)
   }
 
-  tlm2axi4(const sc_core::sc_module_name& name) : sc_module(name) {
-    m_target.register_nb_transport_fw(this, &tlm2axi4<ADDR_WIDTH, DATA_WIDTH>::nb_transport_fw);
+ private:
+  class transaction {
+   public:
+    transaction(tlm::tlm_generic_payload& payload) : m_payload{payload} {}
+
+    sc_core::sc_event& done() { return m_done; };
+    tlm::tlm_generic_payload& payload() { return m_payload; }
+
+   private:
+    tlm::tlm_generic_payload& m_payload;
+    sc_core::sc_event m_done;
+  };
+
+  sc_core::sc_fifo<transaction*> m_r_transaction_fifo;
+  sc_core::sc_fifo<transaction*> m_w_transaction_fifo;
+  sc_core::sc_fifo<transaction*> m_w_data_fifo;
+  sc_core::sc_fifo<transaction*> m_r_response;
+  sc_core::sc_fifo<transaction*> m_w_response;
+
+  sc_core::sc_mutex m_mutex;
+  void b_transport(tlm::tlm_generic_payload& payload, sc_core::sc_time&) {
+    m_mutex.lock();
+
+    transaction tx{payload};
+    if (payload.is_read()) {
+      m_r_transaction_fifo.write(&tx);
+    } else {
+      m_w_transaction_fifo.write(&tx);
+    }
+    std::cout << "wait" << std::endl;
+    wait(tx.done());
+    m_mutex.unlock();
   }
+
+  [[noreturn]] void read_address_phase() {
+    while (true) {
+      transaction* tx = m_r_transaction_fifo.read();
+      std::cout << "read_address_phase" << std::endl;
+      m_r_response.write(tx);
+    }
+  }
+
+  [[noreturn]] void write_address_phase() {
+    while (true) {
+      transaction* tx = m_w_transaction_fifo.read();
+      m_w_data_fifo.write(tx);
+      tx = NULL;
+    }
+  }
+
+  [[noreturn]] void read_response_phase() {
+    while (true) {
+      transaction* tx = NULL;
+      std::cout << "read_response_phase" << std::endl;
+      tx = m_r_response.read();
+      std::cout << "done" << std::endl;
+      tx->done().notify();
+    }
+  }
+
+  void write_data_phase() {}
+
+  void write_response_phase() {}
 };
 #endif  // TLM2AXI4_HPP
