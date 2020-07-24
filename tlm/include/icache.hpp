@@ -14,8 +14,13 @@ class icache : public sc_core::sc_module {
   tlm_utils::simple_target_socket<icache> m_fetch_target;
   tlm_utils::simple_initiator_socket<icache> m_code_initiator;
 
+  void b_transport(tlm::tlm_generic_payload&, sc_core::sc_time&) {
+
+  }
+
   icache(const sc_core::sc_module_name& nm, std::shared_ptr<registers<BITS>> registers)
       : sc_core::sc_module{nm}, m_registers{registers} {
+    m_fetch_target.register_b_transport(this, &icache::b_transport);
     SC_THREAD(operating);
   }
 
@@ -34,7 +39,7 @@ class icache : public sc_core::sc_module {
       trans.set_address(m_registers->read(registers<BITS>::name::PC));
       m_code_initiator->b_transport(trans, delay);
 
-      std::cout << "test" << std::endl;
+      std::cout << "icached fetch" << std::endl;
       wait();
     }
   };

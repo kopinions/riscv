@@ -17,8 +17,31 @@ class tlm2axi4 : public sc_core::sc_module {
   sc_core::sc_in<bool> m_clk;
   sc_core::sc_in<bool> m_resetn;
 
+  template <typename T>
+  void abort(T* tr) {
+    tlm::tlm_generic_payload& trans = tr->payload();
+    trans.set_response_status(tlm::TLM_GENERIC_ERROR_RESPONSE);
+    tr->done().notify();
+  }
+
+  template <typename T>
+  void tlm2axi_clear_fifo(sc_core::sc_fifo<T*>& fifo) {
+    while (fifo.num_available() > 0) {
+      T* tr = fifo.read();
+
+      abort(tr);
+    }
+  }
+
   tlm2axi4(const sc_core::sc_module_name& name) : sc_module(name) {
     m_target.register_b_transport(this, &tlm2axi4<ADDR_WIDTH, DATA_WIDTH>::b_transport);
+
+    tlm2axi_clear_fifo(m_r_transaction_fifo);
+    tlm2axi_clear_fifo(m_r_response);
+    tlm2axi_clear_fifo(m_w_transaction_fifo);
+    tlm2axi_clear_fifo(m_w_data_fifo);
+    tlm2axi_clear_fifo(m_w_response);
+
     SC_THREAD(read_address_phase)
     SC_THREAD(read_response_phase)
     SC_THREAD(write_address_phase)
@@ -65,7 +88,23 @@ class tlm2axi4 : public sc_core::sc_module {
       transaction* tx = m_r_transaction_fifo.read();
       std::cout << "read_address_phase" << std::endl;
       m_r_response.write(tx);
-      std::cout << "read_address_write" << std::endl;
+      std::cout << "read_address_done" << std::endl;
+    }
+  }
+
+  [[noreturn]] void read_response_phase() {
+    while (true) {
+      std::cout << "read_response_phase" << std::endl;
+      transaction* tx = nullptr;
+      if (m_r_response.num_available() > 0) {
+        m_r_response.nb_read(tx);
+        tx->done().notify();
+        std::cout << "read_response_done" << std::endl;
+      } else {
+        std::cout << "read response " << std::endl;
+        sleep(1);
+        std::cout << "read response wait" << std::endl;
+      }
     }
   }
 
@@ -74,18 +113,6 @@ class tlm2axi4 : public sc_core::sc_module {
       transaction* tx = m_w_transaction_fifo.read();
       m_w_data_fifo.write(tx);
       tx = NULL;
-    }
-  }
-
-  [[noreturn]] void read_response_phase() {
-    while (true) {
-      transaction* tx = NULL;
-
-      tx = m_r_response.read();
-
-      std::cout << "read_response_phase" << std::endl;
-      std::cout << "done" << std::endl;
-      tx->done().notify();
     }
   }
 
