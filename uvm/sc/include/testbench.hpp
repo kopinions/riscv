@@ -3,6 +3,7 @@
 #include <uvm>
 
 #include "ram_agent.hpp"
+#include "rom_agent.hpp"
 
 namespace uv {
 
@@ -21,19 +22,24 @@ class testbench : public uvm::uvm_env {
   virtual void build_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_env::build_phase(phase);
     m_ram_agent = ram_agent::type_id::create("ram_agent", this);
+
     if (m_ram_agent == nullptr) {
-      UVM_FATAL(get_name(),
-                "Cannot create Ram agent!"
-                " Simulation aborted!");
+      UVM_FATAL(get_name(), "Cannot create Ram agent! Simulation aborted!");
+    }
+    m_rom_agent = rom_agent::type_id::create("rom_agent", this);
+    if (m_rom_agent == nullptr) {
+      UVM_FATAL(get_name(), "Cannot create rom agent! Simulation aborted!");
     }
 
     uvm::uvm_config_db<int>::set(this, "ram_agent", "is_active", uvm::UVM_ACTIVE);
+    uvm::uvm_config_db<int>::set(this, "rom_agent", "is_active", uvm::UVM_ACTIVE);
   }
 
   virtual void connect_phase(uvm::uvm_phase& phase) override { uvm::uvm_env::connect_phase(phase); }
 
  private:
   ram_agent* m_ram_agent;
+  rom_agent* m_rom_agent;
 };
 
 }  // namespace uv

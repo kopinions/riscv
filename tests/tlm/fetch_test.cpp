@@ -1,4 +1,5 @@
 #include "ram_sequence.hpp"
+#include "rom_sequence.hpp"
 #include "test.hpp"
 
 class fetch_test : public uv::test {
@@ -13,14 +14,11 @@ class fetch_test : public uv::test {
  protected:
   virtual void build_phase(uvm::uvm_phase& phase) override {
     uv::test::build_phase(phase);
-    auto ram_seq = uv::ram_sequence::type_id::create("ram_sequence", this);
-    if (ram_seq == nullptr) {
-      UVM_FATAL(get_name(),
-                "Cannot create ram sequence!"
-                " Simulation aborted!");
-    }
-    uvm::uvm_config_db<uvm::uvm_object_wrapper*>::set(this, "*.m_sequencer.run_phase", "default_sequence",
+
+    uvm::uvm_config_db<uvm::uvm_object_wrapper*>::set(this, "*.ram_sequencer.run_phase", "default_sequence",
                                                       uv::ram_sequence::type_id::get());
+    uvm::uvm_config_db<uvm::uvm_object_wrapper*>::set(this, "*.rom_sequencer.run_phase", "default_sequence",
+                                                      uv::rom_sequence::type_id::get());
   }
 
   virtual void run_phase(uvm::uvm_phase& phase) override {}

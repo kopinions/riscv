@@ -22,9 +22,7 @@ class test : public uvm::uvm_test {
     m_testbench = testbench::type_id::create("testbench", this);
 
     if (m_testbench == nullptr) {
-      UVM_FATAL(get_name(),
-                "Cannot create testbench!"
-                " Simulation aborted!");
+      UVM_FATAL(get_name(), "Cannot create testbench! Simulation aborted!");
     }
   }
 
@@ -33,8 +31,6 @@ class test : public uvm::uvm_test {
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
     phase.raise_objection(this);
-
-    //    m_sequence->start(m_testbench->sequencer);
 
     phase.drop_objection(this);
   }

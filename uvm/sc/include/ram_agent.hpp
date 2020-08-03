@@ -17,9 +17,9 @@ class ram_agent : public uvm::uvm_agent {
 
   explicit ram_agent(const std::string& name = "ram_agent")
       : uvm::uvm_agent{uvm::uvm_component_name{name.c_str()}},
-        m_sequencer{nullptr},
-        m_driver{nullptr},
-        m_monitor{nullptr} {}
+        m_ram_sequencer{nullptr},
+        m_ram_driver{nullptr},
+        m_ram_monitor{nullptr} {}
 
   ~ram_agent() = default;
 
@@ -32,15 +32,16 @@ class ram_agent : public uvm::uvm_agent {
     if (get_is_active() == uvm::UVM_ACTIVE) {
       UVM_INFO(get_name(), "is set to UVM_ACTIVE", uvm::UVM_FULL);
 
-      m_sequencer = ram_sequencer::type_id::create("m_sequencer", this);
-      if (!m_sequencer) {
+      m_ram_sequencer = ram_sequencer::type_id::create("ram_sequencer", this);
+      if (!m_ram_sequencer) {
         UVM_FATAL(get_name(),
                   "Sequencer not defined!"
                   " Simulation aborted!");
       }
 
-      m_driver = ram_driver::type_id::create("m_driver", this);
-      if (!m_driver) {
+
+      m_ram_driver = ram_driver::type_id::create("ram_driver", this);
+      if (!m_ram_driver) {
         UVM_FATAL(get_name(),
                   "Driver not defined!"
                   " Simulation aborted!");
@@ -49,8 +50,8 @@ class ram_agent : public uvm::uvm_agent {
       UVM_INFO(get_name(), "is set to UVM_PASSIVE", uvm::UVM_FULL);
     }
 
-    m_monitor = ram_monitor::type_id::create("m_monitor", this);
-    if (!m_monitor) {
+    m_ram_monitor = ram_monitor::type_id::create("ram_monitor", this);
+    if (!m_ram_monitor) {
       UVM_FATAL(get_name(), "Monitor not defined! Simulation aborted!");
     }
   }
@@ -60,13 +61,13 @@ class ram_agent : public uvm::uvm_agent {
     UVM_INFO(get_name(), "Connect phase", uvm::UVM_FULL);
 
     if (get_is_active() == uvm::UVM_ACTIVE) {
-      m_driver->seq_item_port.connect(m_sequencer->seq_item_export);
+      m_ram_driver->seq_item_port.connect(m_ram_sequencer->seq_item_export);
     }
   }
 
-  ram_sequencer* m_sequencer;
-  ram_driver* m_driver;
-  ram_monitor* m_monitor;
+  ram_sequencer* m_ram_sequencer;
+  ram_driver* m_ram_driver;
+  ram_monitor* m_ram_monitor;
 };
 }  // namespace uv
 #endif  // RAM_AGENT

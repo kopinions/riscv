@@ -26,18 +26,18 @@ class ram_monitor : public uvm::uvm_monitor {
 
   virtual void run_phase(uvm::uvm_phase& phase) override {
     ram_sequence_item item;
-    item_collected_port.write(item);
     while (true) {
-      UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
-
       UVM_INFO(get_name(), "Monitor Run", uvm::UVM_FULL);
-      sleep(1);
+      bitstream a(32);
+      a[0] = 0;
+
+      m_vif->read(a, 0);
+      sc_core::wait(1);
     }
   }
 
  private:
   ibus* m_vif;
-  uvm::uvm_analysis_port<ram_sequence_item> item_collected_port;
 };
 }  // namespace uv
 #endif  // RAM_MONITOR

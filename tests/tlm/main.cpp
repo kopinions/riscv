@@ -3,7 +3,6 @@
 #include <dummy_bus.hpp>
 #include <ibus.hpp>
 #include <matrix_top.hpp>
-#include <bridges.hpp>
 
 int sc_main(int argc, char* argv[]) {
   command_line{argc, argv};
@@ -38,7 +37,8 @@ int sc_main(int argc, char* argv[]) {
   dut.m_code->m_initiators.bind(t2a_code.m_target);
   dut.m_data->m_initiators.bind(t2a_data.m_target);
 
-  uvm::uvm_config_db<ibus*>::set(nullptr, "*.ram_agent.*", "vif", &code_vif);
+  uvm::uvm_config_db<ibus*>::set(nullptr, "*.rom_agent.*", "vif", &code_vif);
+  uvm::uvm_config_db<ibus*>::set(nullptr, "*.ram_agent.*", "vif", &data_vif);
 
   uvm::run_test();
   return 0;

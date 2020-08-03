@@ -95,16 +95,21 @@ class tlm2axi4 : public sc_core::sc_module {
   [[noreturn]] void read_response_phase() {
     while (true) {
       std::cout << "read_response_phase" << std::endl;
-      transaction* tx = nullptr;
-      if (m_r_response.num_available() > 0) {
-        m_r_response.nb_read(tx);
-        tx->done().notify();
+      transaction* tx;
+      tx = m_r_response.read();
+      //      if (m_r_response.num_available() > 0) {
+      //        m_r_response.nb_read(tx);
+      //        tx->done().notify();
+      //        std::cout << "read_response_done" << std::endl;
+      //      } else {
+      //        std::cout << "read response " << std::endl;
+      //        std::cout << "read response wait" << std::endl;
+      //      }
+      if (tx != nullptr) {
         std::cout << "read_response_done" << std::endl;
-      } else {
-        std::cout << "read response " << std::endl;
-        sleep(1);
-        std::cout << "read response wait" << std::endl;
+        tx->done().notify();
       }
+//      sc_core::wait(1);
     }
   }
 
