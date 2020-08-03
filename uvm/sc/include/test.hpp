@@ -2,6 +2,8 @@
 #define TEST_HPP
 #include <uvm>
 
+#include "sequence.hpp"
+#include "sequencer.hpp"
 #include "testbench.hpp"
 
 namespace uv {
@@ -24,14 +26,18 @@ class test : public uvm::uvm_test {
     if (m_testbench == nullptr) {
       UVM_FATAL(get_name(), "Cannot create testbench! Simulation aborted!");
     }
+
+    m_sequence = sequence::type_id::create("sequence", this);
+    if (nullptr == m_sequence) {
+      UVM_FATAL(get_name(), "Cannot create sequence! Simulation aborted!");
+    }
   }
 
   virtual void run_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_test::run_phase(phase);
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
-
     phase.raise_objection(this);
-
+    m_sequence->start(m_testbench->m_sequencer);
     phase.drop_objection(this);
   }
 
@@ -50,8 +56,13 @@ class test : public uvm::uvm_test {
     sc_core::sc_stop();
   }
 
- private:
+ protected:
+  void start_sequence() {
+    m_sequence->start(m_testbench->m_sequencer);
+  };
+
   testbench* m_testbench;
+  sequence* m_sequence;
 };
 }  // namespace uv
 #endif  // TEST_HPP

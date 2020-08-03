@@ -12,16 +12,13 @@ class fetch_test : public uv::test {
   explicit fetch_test(const std::string& name = "fetch_test") : uv::test{name} {}
 
  protected:
-  virtual void build_phase(uvm::uvm_phase& phase) override {
-    uv::test::build_phase(phase);
+  void build_phase(uvm::uvm_phase& phase) override { uv::test::build_phase(phase); }
 
-    uvm::uvm_config_db<uvm::uvm_object_wrapper*>::set(this, "*.ram_sequencer.run_phase", "default_sequence",
-                                                      uv::ram_sequence::type_id::get());
-    uvm::uvm_config_db<uvm::uvm_object_wrapper*>::set(this, "*.rom_sequencer.run_phase", "default_sequence",
-                                                      uv::rom_sequence::type_id::get());
+  void run_phase(uvm::uvm_phase& phase) override {
+    phase.raise_objection(this);
+    start_sequence();
+    phase.drop_objection(this);
   }
-
-  virtual void run_phase(uvm::uvm_phase& phase) override {}
 
   virtual void start_of_simulation_phase(uvm::uvm_phase& phase) override {
     uv::test::start_of_simulation_phase(phase);

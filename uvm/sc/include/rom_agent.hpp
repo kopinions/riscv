@@ -10,6 +10,7 @@
 namespace uv {
 class rom_agent : public uvm::uvm_agent {
  public:
+  friend class testbench;
   DISABLE_WARNING_PUSH
   DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_COMPONENT_UTILS(uv::rom_agent)

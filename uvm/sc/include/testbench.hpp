@@ -9,6 +9,7 @@ namespace uv {
 
 class testbench : public uvm::uvm_env {
  public:
+  friend class test;
   DISABLE_WARNING_PUSH
   DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
   UVM_COMPONENT_UTILS(uv::testbench)
@@ -30,16 +31,25 @@ class testbench : public uvm::uvm_env {
     if (m_rom_agent == nullptr) {
       UVM_FATAL(get_name(), "Cannot create rom agent! Simulation aborted!");
     }
+    m_sequencer = sequencer::type_id::create("sequencer", this);
+    if (m_sequencer == nullptr) {
+      UVM_FATAL(get_name(), "Cannot create sequencer! Simulation aborted!");
+    }
 
     uvm::uvm_config_db<int>::set(this, "ram_agent", "is_active", uvm::UVM_ACTIVE);
     uvm::uvm_config_db<int>::set(this, "rom_agent", "is_active", uvm::UVM_ACTIVE);
   }
 
-  virtual void connect_phase(uvm::uvm_phase& phase) override { uvm::uvm_env::connect_phase(phase); }
+  virtual void connect_phase(uvm::uvm_phase& phase) override {
+    uvm::uvm_env::connect_phase(phase);
+    m_sequencer->m_ram_sequencer = m_ram_agent->m_ram_sequencer;
+    m_sequencer->m_rom_sequencer = m_rom_agent->m_rom_sequencer;
+  }
 
  private:
   ram_agent* m_ram_agent;
   rom_agent* m_rom_agent;
+  sequencer* m_sequencer;
 };
 
 }  // namespace uv
