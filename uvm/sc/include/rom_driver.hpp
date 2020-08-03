@@ -4,10 +4,10 @@
 #include <warnings.hpp>
 
 #include "ibus.hpp"
-#include "instruction.hpp"
+#include "rom_sequence_item.hpp"
 
 namespace uv {
-class rom_driver : public uvm::uvm_driver<instruction> {
+class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
  public:
   DISABLE_WARNING_PUSH
   DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
@@ -15,15 +15,22 @@ class rom_driver : public uvm::uvm_driver<instruction> {
   DISABLE_WARNING_POP
 
   rom_driver(const std::string& name = "rom_driver")
-      : uvm::uvm_driver<instruction>{uvm::uvm_component_name{name.c_str()}}, m_instruction{nullptr} {}
+      : uvm::uvm_driver<rom_sequence_item>{uvm::uvm_component_name{name.c_str()}},
+        m_rom_sequence_item{nullptr},
+        m_rom_sequence_item_rsp{nullptr} {}
   ~rom_driver() = default;
 
  protected:
   void build_phase(uvm::uvm_phase& phase) override {
-    m_instruction = instruction::type_id::create("instruction", this);
+    m_rom_sequence_item = rom_sequence_item::type_id::create("rom_sequence_item", this);
 
-    if (m_instruction == nullptr) {
+    if (m_rom_sequence_item == nullptr) {
       UVM_FATAL(get_name(), "Cannot create rom sequence item!");
+    }
+    m_rom_sequence_item_rsp = rom_sequence_item::type_id::create("rom_sequence_item_rsp", this);
+
+    if (m_rom_sequence_item_rsp == nullptr) {
+      UVM_FATAL(get_name(), "Cannot create rom sequence item rsp!");
     }
 
     auto ok = uvm::uvm_config_db<ibus*>::get(this, "*", "vif", m_vif);
@@ -36,13 +43,20 @@ class rom_driver : public uvm::uvm_driver<instruction> {
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
     while (true) {
-      seq_item_port->get_next_item(*m_instruction);
-      UVM_INFO(get_name(), "Transfer", uvm::UVM_FULL);
+      seq_item_port->get_next_item(*m_rom_sequence_item);
+      UVM_INFO(get_name(), "req", uvm::UVM_FULL);
+      m_rom_sequence_item->address = 2;
+      UVM_INFO(get_name(), "addr" + std::to_string(m_rom_sequence_item->address) , uvm::UVM_FULL);
+      seq_item_port->item_done(*m_rom_sequence_item);
+
+      seq_item_port->get_next_item(*m_rom_sequence_item_rsp);
+      UVM_INFO(get_name(), "rsp", uvm::UVM_FULL);
       seq_item_port->item_done();
     }
   }
 
-  instruction* m_instruction{};
+  rom_sequence_item* m_rom_sequence_item{};
+  rom_sequence_item* m_rom_sequence_item_rsp{};
   ibus* m_vif;
 };
 }  // namespace uv

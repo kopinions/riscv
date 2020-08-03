@@ -4,11 +4,11 @@
 #include <vector>
 #include <warnings.hpp>
 
-#include "instruction.hpp"
+#include "rom_sequence_item.hpp"
 #include "rom_sequencer.hpp"
 
 namespace uv {
-class rom_sequence : public uvm::uvm_sequence<instruction> {
+class rom_sequence : public uvm::uvm_sequence<rom_sequence_item> {
  public:
   DISABLE_WARNING_PUSH
   DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
@@ -17,7 +17,7 @@ class rom_sequence : public uvm::uvm_sequence<instruction> {
 
   rom_sequence() : rom_sequence{"rom_sequence"} {}
 
-  explicit rom_sequence(const std::string& name) : uvm::uvm_sequence<instruction>{name}, m_items{} {}
+  explicit rom_sequence(const std::string& name) : uvm::uvm_sequence<rom_sequence_item>{name}, m_items{} {}
 
  protected:
   void pre_body() override {
@@ -31,10 +31,17 @@ class rom_sequence : public uvm::uvm_sequence<instruction> {
 
   void body() override {
     UVM_INFO(get_name(), "Starting sequence", uvm::UVM_FULL);
-    instruction* item = instruction::type_id::create("sequence_item");
-    uvm::uvm_sequence_item* rsp;
-    start_item(item);
-    finish_item(item);
+    rom_sequence_item* req = rom_sequence_item::type_id::create("req");
+    rom_sequence_item* rsp = rom_sequence_item::type_id::create("rsp");
+    start_item(req);
+    finish_item(req);
+    UVM_INFO(get_name(), "req addr" + std::to_string(req->address), uvm::UVM_FULL);
+
+    start_item(rsp);
+    rsp->copy(*req);
+    rsp->inst = 1;
+    finish_item(rsp);
+
     UVM_INFO(get_name(), "Finishing sequence", uvm::UVM_FULL);
   };
 
@@ -45,7 +52,7 @@ class rom_sequence : public uvm::uvm_sequence<instruction> {
     }
   };
 
-  std::vector<instruction> m_items;
+  std::vector<rom_sequence_item> m_items;
   uv::rom_sequencer* m_sequencer;
 };
 
