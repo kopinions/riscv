@@ -35,6 +35,7 @@ class rom_sequence : public uvm::uvm_sequence<rom_sequence_item> {
     rom_sequence_item* rsp = rom_sequence_item::type_id::create("rsp");
     start_item(req);
     finish_item(req);
+    get_response(req);
     UVM_INFO(get_name(), "req addr" + std::to_string(req->address), uvm::UVM_FULL);
 
     start_item(rsp);

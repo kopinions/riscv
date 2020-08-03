@@ -47,10 +47,10 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
       UVM_INFO(get_name(), "req", uvm::UVM_FULL);
       m_rom_sequence_item->address = 2;
       UVM_INFO(get_name(), "addr" + std::to_string(m_rom_sequence_item->address) , uvm::UVM_FULL);
-      seq_item_port->item_done(*m_rom_sequence_item);
+      seq_item_port->item_done(*m_rom_sequence_item, true);
 
       seq_item_port->get_next_item(*m_rom_sequence_item_rsp);
-      UVM_INFO(get_name(), "rsp", uvm::UVM_FULL);
+      UVM_INFO(get_name(), "rsp" + std::to_string(m_rom_sequence_item_rsp->inst), uvm::UVM_FULL);
       seq_item_port->item_done();
     }
   }
