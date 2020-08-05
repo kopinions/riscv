@@ -42,13 +42,21 @@ class dummy_bus : public ibus {
     } while (m_resetn.read() == false);
   }
 
-  void wait_abort_on_reset() override {
+  void wait_abort_on_reset(const sc_core::sc_signal<bool>& sig) const override {
     do {
       sc_core::wait(m_clk.posedge_event() | m_resetn.negedge_event());
-    } while (m_arvalid.read() == false && m_resetn.read() == true);
+    } while (sig.read() == false && m_resetn.read() == true);
   }
 
   void set_arready(bool b) override { m_arready.write(b); }
+
+  void set_rdata(const bitstream& instruction) override {
+    data_type data{};
+    for (auto i = 0; i < instruction.size(); i++) {
+      data[i] = bool(instruction[i]);
+    }
+    m_rdata.write(data);
+  }
 
   const bitstream get_araddr() const override {
     const bitstream& addr = bitstream(ADDR_WIDTH);
@@ -60,11 +68,9 @@ class dummy_bus : public ibus {
   }
 
  public:
-  sc_core::sc_in<bool> m_clk;
-  sc_core::sc_in<bool> m_resetn;
-  sc_core::sc_signal<bool> m_arvalid;
-  sc_core::sc_signal<bool> m_arready;
+
   sc_core::sc_signal<address_type> m_araddr;
+
   mutable sc_core::sc_signal<address_type> m_raddr{"raddr"};
   mutable sc_core::sc_signal<address_type> m_waddr{"waddr"};
   sc_core::sc_signal<data_type> m_rdata{"rdata"};

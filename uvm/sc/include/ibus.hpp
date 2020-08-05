@@ -12,9 +12,10 @@ class ibus : public sc_core::sc_module {
 
   virtual void wait_for_reset_release() = 0;
 
-  virtual void wait_abort_on_reset() = 0;
+  virtual void wait_abort_on_reset(const sc_core::sc_signal<bool> &sig) const = 0;
 
   virtual void set_arready(bool b) = 0;
+  virtual void set_rdata(const bitstream& instruction) = 0;
 
   virtual const bitstream get_araddr() const = 0;
 
@@ -24,6 +25,16 @@ class ibus : public sc_core::sc_module {
   ibus& operator=(ibus&&) = delete;
 
   virtual ~ibus() = default;
+ public:
+  sc_core::sc_in<bool> m_clk;
+  sc_core::sc_in<bool> m_resetn;
+  sc_core::sc_signal<bool> m_arvalid;
+  sc_core::sc_signal<bool> m_arready;
+
+  // read response channel
+  sc_core::sc_signal<bool> m_rvalid;
+  sc_core::sc_signal<bool> m_rready;
+
 };
 
 #endif  // IBUS_HPP

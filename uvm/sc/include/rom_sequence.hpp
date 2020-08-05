@@ -40,7 +40,7 @@ class rom_sequence : public uvm::uvm_sequence<rom_sequence_item> {
 
     start_item(rsp);
     rsp->copy(*req);
-    rsp->inst = 1;
+    rsp->inst = 0xFFFFFF;
     finish_item(rsp);
 
     UVM_INFO(get_name(), "Finishing sequence", uvm::UVM_FULL);

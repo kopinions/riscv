@@ -2,6 +2,7 @@
 #define TLM2AXI4_HPP
 #include <tlm_utils/simple_target_socket.h>
 #define TLM2AXI_BRIDGE_MSG "tlm2axi-bridge"
+#include <bits.hpp>
 #include <systemc>
 template <unsigned int ADDR_WIDTH, unsigned int DATA_WIDTH = 32>
 class tlm2axi4 : public sc_core::sc_module {
@@ -13,12 +14,16 @@ class tlm2axi4 : public sc_core::sc_module {
   sc_core::sc_in<sc_dt::sc_bv<ADDR_WIDTH>> m_waddr;
   sc_core::sc_out<sc_dt::sc_bv<DATA_WIDTH>> m_wdata;
   sc_core::sc_out<sc_dt::sc_bv<ADDR_WIDTH>> m_raddr;
-  sc_core::sc_in<sc_dt::sc_bv<DATA_WIDTH>> m_rdata;
+
   sc_core::sc_in<bool> m_clk;
   sc_core::sc_in<bool> m_resetn;
   sc_core::sc_out<bool> m_arvalid;
   sc_core::sc_in<bool> m_arready;
   sc_core::sc_out<address_type> m_araddr;
+
+  sc_core::sc_in<bool> m_rvalid;
+  sc_core::sc_out<bool> m_rready;
+  sc_core::sc_in<data_type> m_rdata;
 
   template <typename T>
   void abort(T* tr) {
@@ -34,6 +39,12 @@ class tlm2axi4 : public sc_core::sc_module {
 
       abort(tr);
     }
+  }
+
+  void wait_for_reset_release() {
+    do {
+      sc_core::wait(m_clk.posedge_event());
+    } while (m_resetn.read() == 0);
   }
 
   void wait_abort_on_reset(sc_core::sc_in<bool>& sig) {
@@ -87,6 +98,8 @@ class tlm2axi4 : public sc_core::sc_module {
 
     std::uint64_t address() { return m_payload.get_address(); }
 
+    std::size_t data_length() const { return m_payload.get_data_length(); }
+
    private:
     tlm::tlm_generic_payload& m_payload;
     sc_core::sc_event m_done;
@@ -114,7 +127,6 @@ class tlm2axi4 : public sc_core::sc_module {
         m_w_transaction_fifo.write(&tx);
       }
 
-      std::cout << "wait" << std::endl;
       wait(tx.done());
     } else {
       trans.set_response_status(tlm::TLM_GENERIC_ERROR_RESPONSE);
@@ -125,9 +137,9 @@ class tlm2axi4 : public sc_core::sc_module {
 
   [[noreturn]] void read_address_phase() {
     while (true) {
-      transaction* tx = m_r_transaction_fifo.read();
-      std::cout << "read_address_phase" << std::endl;
+      SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, "read_address_phase start");
 
+      transaction* tx = m_r_transaction_fifo.read();
       if (is_reset()) {
         m_arvalid.write(false);
         continue;
@@ -142,23 +154,66 @@ class tlm2axi4 : public sc_core::sc_module {
 
       if (!is_reset()) {
         m_r_response.write(tx);
-        std::cout << "read_address_done" << std::endl;
+        SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, "read_address_phase done");
       }
     }
   }
 
   [[noreturn]] void read_response_phase() {
+    m_rready.write(false);
     while (true) {
-      std::cout << "read_response_phase" << std::endl;
+      SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, "read_response_phase start");
       transaction* tx = nullptr;
-      if (m_r_response.num_available() > 0) {
-        m_r_response.nb_read(tx);
+      tlm::tlm_generic_payload* payload = nullptr;
+      auto len = 0;
+      while (tx == nullptr || len > 0) {
+        m_rready.write(true);
+        wait(m_clk.posedge_event() | m_resetn.negedge_event());
+        if (is_reset()) {
+          break;
+        }
+
+        if (m_rvalid.read()) {
+          tx = m_r_response.read();
+          len = tx->data_length();
+          payload = &tx->payload();
+          auto addr = payload->get_address();
+          auto data_ptr = payload->get_data_ptr();
+          auto bitoffset = (addr << 3) % DATA_WIDTH;
+          auto readlen = (DATA_WIDTH - bitoffset) / 8;
+          readlen = readlen <= len ? readlen : len;
+          auto position = 0;
+          using read_data_type = typename bits_helper<(
+              ADDR_WIDTH <= 16 ? 16 : ADDR_WIDTH <= 32 ? 32 : ADDR_WIDTH <= 64 ? 64 : ADDR_WIDTH)>::type;
+          for (auto i = 0; i < readlen; i += DATA_WIDTH / 8) {
+            const data_type& data = m_rdata.read() >> (i * 8 + bitoffset);
+            auto copylen = (readlen - i) <= sizeof(data) ? readlen - i : sizeof(data);
+            //            read_data_type read_data;
+            auto assign = [](const data_type& data) -> read_data_type {
+              read_data_type v = 0;
+              for (auto i = 0; i < sizeof(v) * 8; i++) {
+                v |= (data.get_bit(i) << i);
+              }
+              return v;
+            };
+            read_data_type read_data = assign(data);
+            const char* message = ("read_response_phase start" + std::to_string(read_data)).c_str();
+            SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, message);
+            memcpy(data_ptr + position, &read_data, copylen);
+            position += copylen;
+            len -= copylen;
+          }
+        }
+      }
+      m_rready.write(false);
+
+      if (!is_reset()) {
+        payload->set_response_status(tlm::TLM_OK_RESPONSE);
         tx->done().notify();
-        std::cout << "read_xxxresponse_done" << std::endl;
+        SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, "read_response_phase done");
       } else {
-        sc_core::wait(1);
-        std::cout << "read response " << std::endl;
-        std::cout << "read response wait" << std::endl;
+        tx = nullptr;
+        wait_for_reset_release();
       }
     }
   }

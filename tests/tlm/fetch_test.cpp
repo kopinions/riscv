@@ -19,9 +19,6 @@ class fetch_test : public uv::test {
       phase.raise_objection(this);
       start_sequence();
       phase.drop_objection(this);
-      while (true) {
-        wait(1);
-      }
     }
   }
 

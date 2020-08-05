@@ -46,7 +46,7 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
       if (m_vif->is_reset()) {
         m_vif->wait_for_reset_release();
       }
-      m_vif->wait_abort_on_reset();
+      m_vif->wait_abort_on_reset(m_vif->m_arvalid);
       m_vif->set_arready(true);
       const bitstream& araddr = m_vif->get_araddr();
 
@@ -59,7 +59,10 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
       seq_item_port->get_next_item(*m_rom_sequence_item_rsp);
       UVM_INFO(get_name(), "rsp" + std::to_string(m_rom_sequence_item_rsp->inst), uvm::UVM_FULL);
 
-
+      m_vif->m_rvalid.write(true);
+      m_vif->wait_abort_on_reset(m_vif->m_rready);
+      m_vif->set_rdata(m_rom_sequence_item_rsp->inst);
+      m_vif->m_rvalid.write(false);
       seq_item_port->item_done();
     }
   }
