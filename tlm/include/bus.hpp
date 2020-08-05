@@ -13,8 +13,9 @@ class bus : public sc_core::sc_module {
   void b_transport(int, tlm::tlm_generic_payload& payload, sc_core::sc_time&) {
     std::cout << "bus receive" << std::endl;
     sc_dt::uint64 masked_address;
-//    unsigned int target = decode_address(payload.get_address(), masked_address);
-    payload.set_address(masked_address);
+    // TODO should able to use address to distinguish the different device
+    //    unsigned int target = decode_address(payload.get_address(), masked_address);
+    //    payload.set_address(masked_address);
 
     sc_core::sc_time t = sc_core::SC_ZERO_TIME;
     m_initiators[0]->b_transport(payload, t);

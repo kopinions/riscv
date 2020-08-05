@@ -33,10 +33,10 @@ class icache : public sc_core::sc_module {
       trans.set_data_length(4);
       trans.set_streaming_width(4);  // = data_length to indicate no streaming
       trans.set_byte_enable_ptr(0);  // 0 indicates unused
+      trans.set_address(m_registers->read(registers<BITS>::name::PC));
       trans.set_dmi_allowed(false);  // Mandatory initial value
       trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
       sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
-      trans.set_address(m_registers->read(registers<BITS>::name::PC));
       m_code_initiator->b_transport(trans, delay);
 
       std::cout << "icached fetch" << std::endl;

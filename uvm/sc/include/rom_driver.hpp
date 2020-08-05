@@ -43,14 +43,23 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 
     while (true) {
+      if (m_vif->is_reset()) {
+        m_vif->wait_for_reset_release();
+      }
+      m_vif->wait_abort_on_reset();
+      m_vif->set_arready(true);
+      const bitstream& araddr = m_vif->get_araddr();
+
       seq_item_port->get_next_item(*m_rom_sequence_item);
       UVM_INFO(get_name(), "req", uvm::UVM_FULL);
-      m_rom_sequence_item->address = 2;
+      m_rom_sequence_item->address = std::uint64_t(araddr);
       UVM_INFO(get_name(), "addr" + std::to_string(m_rom_sequence_item->address) , uvm::UVM_FULL);
       seq_item_port->item_done(*m_rom_sequence_item, true);
 
       seq_item_port->get_next_item(*m_rom_sequence_item_rsp);
       UVM_INFO(get_name(), "rsp" + std::to_string(m_rom_sequence_item_rsp->inst), uvm::UVM_FULL);
+
+
       seq_item_port->item_done();
     }
   }

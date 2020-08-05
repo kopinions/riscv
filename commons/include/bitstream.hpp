@@ -2,6 +2,7 @@
 #define BITSTREAM_HPP
 #include <cstdint>
 #include <cstdlib>
+#include <type_traits>
 using voidptr = void *;
 
 static constexpr std::size_t BYTE_LENGTH = 8;
@@ -69,6 +70,31 @@ class bitstream {
   bitstream_ref operator[](std::size_t index) noexcept { return {m_bits, index}; };
 
   bitstream_const_ref operator[](std::size_t index) const noexcept { return {m_bits, index}; };
+
+  template <typename T, typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
+  explicit operator T() const noexcept {
+    auto bytes = static_cast<const std::uint8_t *>(m_bits);
+    std::size_t offset = 0;
+    std::uintmax_t val = 0;
+    std::size_t bits;
+
+    if (m_size < 8 * sizeof(std::uintmax_t)) {
+      bits = m_size;
+    }
+
+    while (bits >= 8) {
+      val |= (std::uintmax_t(*bytes++) << offset);
+      offset += 8;
+      bits -= 8;
+    }
+
+    if (bits > 0) {
+      auto mask = std::uint8_t(~(0xFF << bits));
+      val |= (std::uintmax_t(mask & (*bytes++)) << offset);
+    }
+
+    return T(val);
+  };
 
  private:
   voidptr m_bits;

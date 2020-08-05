@@ -15,7 +15,7 @@ class rom_sequence_item : public uvm::uvm_sequence_item {
 
   explicit rom_sequence_item(const std::string& name) : uvm::uvm_sequence_item{name}, address{0}, inst{0} {}
 
-  unsigned int address;
+  std::uint64_t address;
   unsigned int inst;
 
   void do_copy(const uvm::uvm_object& rhs) override {
