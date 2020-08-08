@@ -96,6 +96,30 @@ class bitstream {
     return T(val);
   };
 
+  template <typename T, typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
+  bitstream &operator=(T value){
+    auto bits = 8 * sizeof(T);
+    auto byte = static_cast<std::uint8_t*>(m_bits);
+
+    if (m_size < bits) {
+      bits = m_size;
+    }
+
+    while (bits >= 8) {
+      *byte++ = std::uint8_t(value);
+      value >>= 8;
+      bits -= 8;
+    }
+
+    if (bool(bits)) {
+      auto mask = std::uint8_t(~(0xFF << bits));
+      *byte &= std::uint8_t(~mask);
+      *byte |= (mask & std::uint8_t(value));
+    }
+
+    return *this;
+  };
+
  private:
   voidptr m_bits;
   std::size_t m_size{};

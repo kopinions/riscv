@@ -188,7 +188,6 @@ class tlm2axi4 : public sc_core::sc_module {
           for (auto i = 0; i < readlen; i += DATA_WIDTH / 8) {
             const data_type& data = m_rdata.read() >> (i * 8 + bitoffset);
             auto copylen = (readlen - i) <= sizeof(data) ? readlen - i : sizeof(data);
-            //            read_data_type read_data;
             auto assign = [](const data_type& data) -> read_data_type {
               read_data_type v = 0;
               for (auto i = 0; i < sizeof(v) * 8; i++) {
@@ -197,8 +196,7 @@ class tlm2axi4 : public sc_core::sc_module {
               return v;
             };
             read_data_type read_data = assign(data);
-            const char* message = ("read_response_phase start" + std::to_string(read_data)).c_str();
-            SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, message);
+            SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, ("read_response_phase start" + std::to_string(read_data)).c_str());
             memcpy(data_ptr + position, &read_data, copylen);
             position += copylen;
             len -= copylen;

@@ -60,8 +60,10 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
       UVM_INFO(get_name(), "rsp" + std::to_string(m_rom_sequence_item_rsp->inst), uvm::UVM_FULL);
 
       m_vif->m_rvalid.write(true);
+      bitstream d(32);
+      d = m_rom_sequence_item_rsp->inst;
+      m_vif->set_rdata(d);
       m_vif->wait_abort_on_reset(m_vif->m_rready);
-      m_vif->set_rdata(m_rom_sequence_item_rsp->inst);
       m_vif->m_rvalid.write(false);
       seq_item_port->item_done();
     }

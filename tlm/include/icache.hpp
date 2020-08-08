@@ -39,8 +39,10 @@ class icache : public sc_core::sc_module {
       sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
       m_code_initiator->b_transport(trans, delay);
 
-      std::cout << "icached fetch" << std::endl;
+
+      std::cout << "icached fetch" << INSTR << std::endl;
       wait();
+
     }
   };
 
