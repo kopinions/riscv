@@ -4,6 +4,7 @@
 #include <vector>
 #include <warnings.hpp>
 
+#include "ibus.hpp"
 #include "rom_sequence_item.hpp"
 #include "rom_sequencer.hpp"
 
@@ -40,6 +41,8 @@ class rom_sequence : public uvm::uvm_sequence<rom_sequence_item> {
 
     start_item(rsp);
     rsp->copy(*req);
+    // TODO should able to generate the random instruction and send to the reference model
+    // the reference model calculated and then compare with scoreboard
     rsp->inst = 0xFFFFFF;
     finish_item(rsp);
 

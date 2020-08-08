@@ -196,7 +196,7 @@ class tlm2axi4 : public sc_core::sc_module {
               return v;
             };
             read_data_type read_data = assign(data);
-            SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, ("read_response_phase start" + std::to_string(read_data)).c_str());
+            SC_REPORT_INFO(TLM2AXI_BRIDGE_MSG, ("read_response_phase done" + std::to_string(read_data)).c_str());
             memcpy(data_ptr + position, &read_data, copylen);
             position += copylen;
             len -= copylen;

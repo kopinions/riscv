@@ -97,9 +97,9 @@ class bitstream {
   };
 
   template <typename T, typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
-  bitstream &operator=(T value){
+  bitstream &operator=(T value) {
     auto bits = 8 * sizeof(T);
-    auto byte = static_cast<std::uint8_t*>(m_bits);
+    auto byte = static_cast<std::uint8_t *>(m_bits);
 
     if (m_size < bits) {
       bits = m_size;
@@ -119,6 +119,10 @@ class bitstream {
 
     return *this;
   };
+
+  voidptr data() noexcept { return m_bits; }
+
+  const voidptr data() const noexcept { return m_bits; }
 
  private:
   voidptr m_bits;

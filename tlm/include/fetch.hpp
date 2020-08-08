@@ -31,8 +31,7 @@ class fetch : public sc_core::sc_module {
       sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
       trans.set_address(m_registers->read(registers<BITS>::name::PC));
       m_icache_initiator->b_transport(trans, delay);
-      std::cout << "fetch code" << std::endl;
-      wait();
+      std::cout << "fetch code" << INSTR << std::endl;
     }
   };
 
