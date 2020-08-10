@@ -179,12 +179,11 @@ class tlm2axi4 : public sc_core::sc_module {
           payload = &tx->payload();
           auto addr = payload->get_address();
           auto data_ptr = payload->get_data_ptr();
-          auto bitoffset = (addr << 3) % DATA_WIDTH;
+          auto bitoffset = (addr * 8) % DATA_WIDTH;
           auto readlen = (DATA_WIDTH - bitoffset) / 8;
           readlen = readlen <= len ? readlen : len;
           auto position = 0;
-          using read_data_type = typename bits_helper<(
-              ADDR_WIDTH <= 16 ? 16 : ADDR_WIDTH <= 32 ? 32 : ADDR_WIDTH <= 64 ? 64 : ADDR_WIDTH)>::type;
+          using read_data_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
           for (auto i = 0; i < readlen; i += DATA_WIDTH / 8) {
             const data_type& data = m_rdata.read() >> (i * 8 + bitoffset);
             auto copylen = (readlen - i) <= sizeof(data) ? readlen - i : sizeof(data);
