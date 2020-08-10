@@ -15,11 +15,9 @@ class fetch_test : public uv::test {
   void build_phase(uvm::uvm_phase& phase) override { uv::test::build_phase(phase); }
 
   void run_phase(uvm::uvm_phase& phase) override {
-    while (true) {
-      phase.raise_objection(this);
-      start_sequence();
-      phase.drop_objection(this);
-    }
+    phase.raise_objection(this);
+    start_sequence();
+    phase.drop_objection(this);
   }
 
   virtual void start_of_simulation_phase(uvm::uvm_phase& phase) override {

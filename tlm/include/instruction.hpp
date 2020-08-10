@@ -7,9 +7,48 @@
 #include "mm.hpp"
 #include "registers.hpp"
 
-template <unsigned int INSTRUCTION_WIDTH = 32>
-class instruction : public sc_core::sc_module {
+template <unsigned int WIDTH = 32>
+class instruction {
  public:
-  virtual void applied(registers<INSTRUCTION_WIDTH>& regs, mm* mm) = 0;
+  virtual void applied(registers<WIDTH>& regs, mm* mm) const = 0;
 };
+
+template <unsigned int WIDTH = 32>
+class rtype : public instruction<WIDTH> {
+ public:
+  void applied(registers<WIDTH>& regs, mm* mm) const override {}
+
+ private:
+};
+
+template <unsigned int WIDTH = 32>
+class itype : public instruction<WIDTH> {
+ public:
+  void applied(registers<WIDTH>& regs, mm* mm) const override {}
+};
+
+template <unsigned int WIDTH = 32>
+class stype : public instruction<WIDTH> {
+ public:
+  void applied(registers<WIDTH>& regs, mm* mm) const override {}
+};
+
+template <unsigned int WIDTH = 32>
+class btype : public instruction<WIDTH> {
+ public:
+  void applied(registers<WIDTH>& regs, mm* mm) const override {}
+};
+
+template <unsigned int WIDTH = 32>
+class utype : public instruction<WIDTH> {
+ public:
+  void applied(registers<WIDTH>& regs, mm* mm) const override {}
+};
+
+template <unsigned int WIDTH = 32>
+class jtype : public instruction<WIDTH> {
+ public:
+  void applied(registers<WIDTH>& regs, mm* mm) override {}
+};
+
 #endif  // INSTRUCTION_HPP

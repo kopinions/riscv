@@ -4,6 +4,7 @@
 #include <tlm_utils/simple_target_socket.h>
 #include <tlm_utils/tlm_quantumkeeper.h>
 
+#include <memory>
 #include <systemc>
 #include <tlm>
 
@@ -16,7 +17,6 @@
 #include "instruction.hpp"
 #include "mm.hpp"
 #include "registers.hpp"
-#include <memory>
 
 template <unsigned int ADDR_WIDTH = 32, unsigned int DATA_WIDTH = 32>
 class matrix : public sc_core::sc_module {
@@ -34,7 +34,7 @@ class matrix : public sc_core::sc_module {
     m_irq.register_b_transport(this, &matrix::interrupted);
 
     m_fetch.m_icache_initiator.bind(m_icache.m_fetch_target);
-    m_fetch.m_decode_initiator.bind(m_decode.m_fetch_target);
+    m_decode.m_fetch_initiator.bind(m_fetch.m_decode_target);
     m_exec.m_decode_initiator.bind(m_decode.m_exec_target);
     m_exec.m_dcache_initiator.bind(m_dcache.m_exec_target);
   };
@@ -43,8 +43,8 @@ class matrix : public sc_core::sc_module {
   std::shared_ptr<registers<DATA_WIDTH>> m_registers;
   tlm_utils::simple_target_socket<matrix> m_irq;
   icache<ADDR_WIDTH, DATA_WIDTH> m_icache;
-  fetch<ADDR_WIDTH,DATA_WIDTH> m_fetch;
-  decode m_decode;
+  fetch<ADDR_WIDTH, DATA_WIDTH> m_fetch;
+  decode<ADDR_WIDTH, DATA_WIDTH> m_decode;
   exec m_exec;
   dcache m_dcache;
   friend class matrix_system;
