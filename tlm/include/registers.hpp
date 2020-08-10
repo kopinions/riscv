@@ -9,7 +9,7 @@ class registers : public sc_core::sc_module {
   using name = enum {
     PC
   };
-  using type = typename bits_helper<(BITS <= 16 ? 16 : BITS <= 32 ? 32 : BITS <= 64 ? 64 : BITS)>::type;
+  using type = typename bits_helper<normalize(BITS)>::type;
 
   registers(sc_core::sc_module_name mn) : sc_core::sc_module{mn}, m_bank{} {
     const std::initializer_list<name> names = {name::PC};

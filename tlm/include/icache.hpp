@@ -6,15 +6,14 @@
 #include <map>
 #include <systemc>
 
-#include "registers.hpp"
 static const char* ICACHE_TYPE = "icache";
-template <unsigned int BITS = 32>
+template <unsigned int ADDR_WIDTH = 32, unsigned int DATA_WIDTH = 32>
 class icache : public sc_core::sc_module {
  public:
   tlm_utils::simple_target_socket<icache> m_fetch_target;
   tlm_utils::simple_initiator_socket<icache> m_code_initiator;
-  using instruction_type = typename bits_helper<normalize(BITS)>::type;
-  using address_type = typename registers<BITS>::type;
+  using instruction_type = typename bits_helper<normalize(DATA_WIDTH)>::type;
+  using address_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
 
   void b_transport(tlm::tlm_generic_payload& fetch, sc_core::sc_time&) {
     instruction_type inst;
@@ -33,16 +32,14 @@ class icache : public sc_core::sc_module {
     SC_REPORT_INFO(ICACHE_TYPE, ("Instruction get by icache:  " + std::to_string(inst)).c_str());
     auto fetchptr = fetch.get_data_ptr();
     memcpy(fetchptr, &inst, sizeof(inst));
-//    fetch.set_response_status(tlm::TLM_OK_RESPONSE);
+    //    fetch.set_response_status(tlm::TLM_OK_RESPONSE);
   }
 
-  icache(const sc_core::sc_module_name& nm, std::shared_ptr<registers<BITS>> registers)
-      : sc_core::sc_module{nm}, m_registers{registers}, m_cache{} {
+  icache(const sc_core::sc_module_name& nm) : sc_core::sc_module{nm}, m_cache{} {
     m_fetch_target.register_b_transport(this, &icache::b_transport);
   }
 
  private:
   std::map<address_type, instruction_type> m_cache;
-  std::shared_ptr<registers<BITS>> m_registers;
 };
 #endif  // ICACHE_HPP
