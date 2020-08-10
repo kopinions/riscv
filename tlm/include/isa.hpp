@@ -8,6 +8,25 @@ constexpr std::uint8_t opcode(typename bits_helper<normalize(WIDTH)>::type inst)
   return std::uint8_t(inst & 0x7F);
 };
 
+template <unsigned int WIDTH = 32>
+class inst {
+ public:
+  using type = typename bits_helper<normalize(WIDTH)>::type;
+  inst(std::uint8_t opcode) : opcode(opcode) {}
+  inst() : opcode{0} {}
+  std::uint8_t opcode;
+  extension ext;
+  type rs1;
+  type rs2;
+  std::uint32_t rd;
+  type imm;
+  bool mem_access;
+  type mem_address;
+  bool branch_valid;
+  type branch_target_address;
+  bool inc_pc;
+};
+
 template <unsigned int WIDTH = 32, extension = BASE>
 class isa {
  public:
@@ -16,7 +35,7 @@ class isa {
   };
   using type = typename bits_helper<normalize(WIDTH)>::type;
 
-  virtual const instruction<WIDTH>& from(type v) const { return rtype<WIDTH>(); }
+  virtual const inst<WIDTH>& from(type v) const { return inst<WIDTH>{::opcode<WIDTH>(v)}; }
 };
 
 template <unsigned int WIDTH>
@@ -27,7 +46,7 @@ class isa<WIDTH, M> : public sc_core::sc_module {
   };
   using type = typename bits_helper<normalize(WIDTH)>::type;
 
-  virtual const instruction<WIDTH>& from(type v) const { return rtype<WIDTH>(); }
+  virtual const inst<WIDTH>& from(type v) const { return inst<WIDTH>(); }
 };
 
 template <unsigned int WIDTH>
@@ -38,7 +57,7 @@ class isa<WIDTH, A> : public sc_core::sc_module {
   };
   using type = typename bits_helper<normalize(WIDTH)>::type;
 
-  virtual const instruction<WIDTH>& from(type v) const { return rtype<WIDTH>(); }
+  virtual const inst<WIDTH>& from(type v) const { return inst<WIDTH>(); }
 };
 
 template <unsigned int WIDTH>
@@ -49,4 +68,5 @@ const isa<>& isa_router(typename bits_helper<normalize(WIDTH)>::type inst) {
   }
   throw 1;
 }
+
 #endif  // ISA_HPP

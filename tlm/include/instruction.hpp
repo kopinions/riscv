@@ -10,7 +10,7 @@
 template <unsigned int WIDTH = 32>
 class instruction {
  public:
-  virtual void applied(registers<WIDTH>& regs, mm* mm) const = 0;
+  virtual void applied(registers<WIDTH>& regs, mm* mm) const {};
 };
 
 template <unsigned int WIDTH = 32>

@@ -63,12 +63,12 @@ class decode : public sc_core::sc_module {
   }
 
  private:
-  const instruction<DATA_WIDTH>& decoding(instruction_type inst) {
+  const inst<DATA_WIDTH>& decoding(instruction_type inst) {
     const isa<>& isa = isa_router<DATA_WIDTH>(inst);
     return isa.from(inst);
   }
   sc_core::sc_event m_decoded_event;
   bool m_decoded;
-  instruction<DATA_WIDTH>* instruction;
+  inst<DATA_WIDTH>* instruction;
 };
 #endif  // DECODE_HPP

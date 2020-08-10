@@ -45,7 +45,7 @@ class matrix : public sc_core::sc_module {
   icache<ADDR_WIDTH, DATA_WIDTH> m_icache;
   fetch<ADDR_WIDTH, DATA_WIDTH> m_fetch;
   decode<ADDR_WIDTH, DATA_WIDTH> m_decode;
-  exec m_exec;
+  exec<ADDR_WIDTH, DATA_WIDTH> m_exec;
   dcache m_dcache;
   friend class matrix_system;
 };
