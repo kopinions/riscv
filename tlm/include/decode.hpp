@@ -26,15 +26,14 @@ class decode : public sc_core::sc_module {
       sc_core::wait(m_decoded_event);
     }
     auto dataptr = payload.get_data_ptr();
-    memcpy(dataptr, instruction, sizeof(*instruction));
+    memcpy(dataptr, m_decoded_instruction, sizeof(*m_decoded_instruction));
     payload.set_response_status(tlm::TLM_OK_RESPONSE);
-
     m_decoded = false;
     m_decoded_event.notify();
   }
 
   decode(const sc_core::sc_module_name& nm, std::shared_ptr<registers<ADDR_WIDTH>> registers)
-      : sc_core::sc_module{nm}, m_registers{registers} {
+      : sc_core::sc_module{nm}, m_registers{registers}, m_decoded{false}, m_decoded_event{"m_decoded"} {
     m_exec_target.register_b_transport(this, &decode::b_transport);
     SC_THREAD(operating);
   }
@@ -53,8 +52,9 @@ class decode : public sc_core::sc_module {
         trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
         sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
         m_fetch_initiator->b_transport(trans, delay);
+
         decoded<DATA_WIDTH> decoded = decoding(inst);
-        instruction = &decoded;
+        m_decoded_instruction = &decoded;
         SC_REPORT_INFO(DECODE_TYPE, ("Instruction get by decode:  " + std::to_string(inst)).c_str());
         m_decoded = true;
         m_decoded_event.notify();
@@ -75,6 +75,6 @@ class decode : public sc_core::sc_module {
   std::shared_ptr<registers<DATA_WIDTH>> m_registers;
   sc_core::sc_event m_decoded_event;
   bool m_decoded;
-  decoded<DATA_WIDTH>* instruction;
+  decoded<DATA_WIDTH>* m_decoded_instruction;
 };
 #endif  // DECODE_HPP

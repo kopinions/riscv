@@ -23,10 +23,10 @@ constexpr unsigned int rd(normalized<WIDTH> inst) {
 
 template <unsigned int WIDTH>
 constexpr normalized<WIDTH> iimm(normalized<WIDTH> inst) {
-  unsigned int sign = (inst & 0x80000000) >> 31;
-  auto mask = (~(sign - 1)) & 0xFFFFF000;
-
-  return normalized<WIDTH>(((inst & 0xFFF00000) >> 20) | mask);
+  // sign = (inst & 0x80000000) >> 31
+  // mask = ~(sign-1) & 0xFFFFF000;
+  // imm = imm[12:0] | mask
+  return normalized<WIDTH>(((inst & 0xFFF00000) >> 20) | ((~(((inst & 0x80000000) >> 31) - 1)) & 0xFFFFF000));
 };
 
 template <unsigned int WIDTH>
@@ -74,6 +74,8 @@ class isa {
         return decoded<WIDTH>{opcode, rs1_value, rs2_value, ::rd<WIDTH>(v), normalized<WIDTH>{0}};
       case 0x13:
         return decoded<WIDTH>{opcode, rs1_value, rs2_value, ::rd<WIDTH>(v), ::iimm<WIDTH>(v)};
+      default:
+        return decoded<WIDTH>{0, normalized<WIDTH>{0}, normalized<WIDTH>{0}, 0, normalized<WIDTH>{0}};
     }
   }
 };

@@ -43,7 +43,7 @@ class rom_sequence : public uvm::uvm_sequence<rom_sequence_item> {
     rsp->copy(*req);
     // TODO should able to generate the random instruction and send to the reference model
     // the reference model calculated and then compare with scoreboard
-    rsp->inst = 0xFFFF33;
+    rsp->inst = 0x007302B3;
     finish_item(rsp);
 
     UVM_INFO(get_name(), "Finishing sequence", uvm::UVM_FULL);
