@@ -28,7 +28,7 @@ class matrix : public sc_core::sc_module {
         m_registers(std::make_shared<registers<DATA_WIDTH>>("registers")),
         m_icache{"icache"},
         m_fetch{"fetch", m_registers},
-        m_decode{"decode"},
+        m_decode{"decode", m_registers},
         m_exec{"exec"},
         m_dcache{"dcacne"} {
     m_irq.register_b_transport(this, &matrix::interrupted);

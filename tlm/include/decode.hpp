@@ -2,10 +2,10 @@
 #define DECODE_HPP
 #include <tlm_utils/simple_target_socket.h>
 
+#include <isa.hpp>
 #include <systemc>
 
 #include "instruction.hpp"
-#include "isa.hpp"
 
 static const char* DECODE_TYPE = "decode";
 
@@ -33,7 +33,8 @@ class decode : public sc_core::sc_module {
     m_decoded_event.notify();
   }
 
-  decode(const sc_core::sc_module_name& nm) : sc_core::sc_module{nm} {
+  decode(const sc_core::sc_module_name& nm, std::shared_ptr<registers<ADDR_WIDTH>> registers)
+      : sc_core::sc_module{nm}, m_registers{registers} {
     m_exec_target.register_b_transport(this, &decode::b_transport);
     SC_THREAD(operating);
   }
@@ -52,7 +53,8 @@ class decode : public sc_core::sc_module {
         trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
         sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
         m_fetch_initiator->b_transport(trans, delay);
-        *instruction = decoding(inst);
+        decoded<DATA_WIDTH> decoded = decoding(inst);
+        instruction = &decoded;
         SC_REPORT_INFO(DECODE_TYPE, ("Instruction get by decode:  " + std::to_string(inst)).c_str());
         m_decoded = true;
         m_decoded_event.notify();
@@ -63,12 +65,16 @@ class decode : public sc_core::sc_module {
   }
 
  private:
-  const inst<DATA_WIDTH>& decoding(instruction_type inst) {
-    const isa<>& isa = isa_router<DATA_WIDTH>(inst);
-    return isa.from(inst);
+  decoded<DATA_WIDTH> decoding(instruction_type inst) {
+    isa riscv{};
+    return riscv.decode(inst, [&](unsigned int reg_id) -> normalized<DATA_WIDTH> {
+      m_registers->read(registers<DATA_WIDTH>::name::PC);
+      return normalized<DATA_WIDTH>{1};
+    });
   }
+  std::shared_ptr<registers<DATA_WIDTH>> m_registers;
   sc_core::sc_event m_decoded_event;
   bool m_decoded;
-  inst<DATA_WIDTH>* instruction;
+  decoded<DATA_WIDTH>* instruction;
 };
 #endif  // DECODE_HPP

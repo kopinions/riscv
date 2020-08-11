@@ -18,7 +18,7 @@ class exec : public sc_core::sc_module {
     while (true) {
       if (!m_execed) {
         tlm::tlm_generic_payload trans{};
-        inst<DATA_WIDTH> inst;
+        decoded<DATA_WIDTH> inst;
         trans.set_command(tlm::TLM_READ_COMMAND);
         trans.set_data_ptr(reinterpret_cast<unsigned char*>(&inst));
         trans.set_data_length(sizeof(inst));
@@ -28,7 +28,8 @@ class exec : public sc_core::sc_module {
         trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
         sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
         m_decode_initiator->b_transport(trans, delay);
-        SC_REPORT_INFO(EXEC_TYPE, ("Instruction get by fetch: "));
+        SC_REPORT_INFO(EXEC_TYPE, ("Instruction get by exec: "));
+
         m_execed = true;
         m_execed_event.notify();
       } else {

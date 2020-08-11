@@ -1,0 +1,1 @@
+gtest(isa_test isa_test.cpp)

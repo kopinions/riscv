@@ -9,6 +9,7 @@ include_directories(commons/include)
 include_directories(bridges)
 include_directories(tlm/include)
 include_directories(uvm/sc/include)
+include_directories(isa/include)
 
 find_package(SystemC)
 if (NOT SYSTEMC_FOUND)
@@ -18,17 +19,17 @@ if (NOT SYSTEMC_FOUND)
             PREFIX ${CMAKE_SOURCE_DIR}/external/SystemC
             CMAKE_COMMAND "${CMAKE_COMMAND}"
             CMAKE_ARGS
-                -DCMAKE_CXX_STANDARD:number=11
-                -DCMAKE_INSTALL_PREFIX:string=<INSTALL_DIR>
+            -DCMAKE_CXX_STANDARD:number=11
+            -DCMAKE_INSTALL_PREFIX:string=<INSTALL_DIR>
             BUILD_COMMAND make -j$(nproc) && make install -j$(nproc)
             )
     ExternalProject_Add(UVM-SystemC
             URL https://www.accellera.org/images/downloads/drafts-review/uvm-systemc-10-beta3tar.gz
             PREFIX ${CMAKE_SOURCE_DIR}/external/SystemC
             CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++11 <SOURCE_DIR>/configure --enable-shared
-                --prefix=<INSTALL_DIR>
-                --with-systemc=${CMAKE_SOURCE_DIR}/external/SystemC/
-                --with-arch-suffix=
+            --prefix=<INSTALL_DIR>
+            --with-systemc=${CMAKE_SOURCE_DIR}/external/SystemC/
+            --with-arch-suffix=
             BUILD_COMMAND make -j$(nproc) && make install -j$(nproc)
             DEPENDS SystemC
             )
@@ -41,14 +42,14 @@ include(FetchContent)
 FetchContent_Declare(
         googletest
         GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        release-1.10.0
+        GIT_TAG release-1.10.0
 )
 FetchContent_GetProperties(googletest)
-if(NOT googletest_POPULATED)
+if (NOT googletest_POPULATED)
     FetchContent_Populate(googletest)
     add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR})
     include_directories(${googletest_SOURCE_DIR}/googletest/include)
-endif()
+endif ()
 
 include(GoogleTest)
 
