@@ -33,6 +33,7 @@ class exec : public sc_core::sc_module {
 
         SC_REPORT_INFO(EXEC_TYPE, ("Instruction get by exec: " + std::to_string(m_decoded.opcode)).c_str());
 
+
         m_execed = true;
         m_execed_event.notify();
       } else {

@@ -63,6 +63,18 @@ class isa {
   using extension = enum { BASE, M, A, F };
 
   template <unsigned int WIDTH = 32>
+  static type type_of(decoded<WIDTH> decoded) {
+    switch (decoded.opcode) {
+      case 0x33:
+        return RTYPE;
+      case 0x13:
+        return ITYPE;
+      default:
+        return RTYPE;
+    }
+  };
+
+  template <unsigned int WIDTH = 32>
   const decoded<WIDTH> decode(normalized<WIDTH> v, reg_if<WIDTH> accessor) const {
     uint8_t opcode = ::opcode<WIDTH>(v);
     unsigned int rs1_id = ::rs1<WIDTH>(v);
