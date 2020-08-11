@@ -8,12 +8,12 @@ constexpr std::uint8_t opcode(typename bits_helper<normalize(WIDTH)>::type inst)
 
 template <unsigned int WIDTH>
 constexpr unsigned int rs1(normalized<WIDTH> inst) {
-  return std::uint8_t((inst & 0x000F8000) >> 15);
+  return (unsigned int)((inst & 0x000F8000) >> 15);
 };
 
 template <unsigned int WIDTH>
 constexpr unsigned int rs2(normalized<WIDTH> inst) {
-  return std::uint8_t((inst & 0x01F00000) >> 20);
+  return (unsigned int)((inst & 0x01F00000) >> 20);
 };
 
 template <unsigned int WIDTH>
@@ -23,7 +23,10 @@ constexpr unsigned int rd(normalized<WIDTH> inst) {
 
 template <unsigned int WIDTH>
 constexpr normalized<WIDTH> iimm(normalized<WIDTH> inst) {
-  return normalized<WIDTH>((inst & 0xFFF00000) >> 20);
+  unsigned int sign = (inst & 0x80000000) >> 31;
+  auto mask = (~(sign - 1)) & 0xFFFFF000;
+
+  return normalized<WIDTH>(((inst & 0xFFF00000) >> 20) | mask);
 };
 
 template <unsigned int WIDTH>
@@ -62,22 +65,31 @@ class isa {
   template <unsigned int WIDTH = 32>
   const decoded<WIDTH> decode(normalized<WIDTH> v, reg_if<WIDTH> accessor) const {
     uint8_t opcode = ::opcode<WIDTH>(v);
-    unsigned int i = ::rs1<WIDTH>(v);
-    normalized<WIDTH> aa = accessor(i);
-    return decoded<WIDTH>{opcode};
+    unsigned int rs1_id = ::rs1<WIDTH>(v);
+    normalized<WIDTH> rs1_value = accessor(rs1_id);
+    unsigned int rs2_id = ::rs2<WIDTH>(v);
+    normalized<WIDTH> rs2_value = accessor(rs2_id);
+    switch (opcode) {
+      case 0x33:
+        return decoded<WIDTH>{opcode, rs1_value, rs2_value, ::rd<WIDTH>(v), normalized<WIDTH>{0}};
+      case 0x13:
+        return decoded<WIDTH>{opcode, rs1_value, rs2_value, ::rd<WIDTH>(v), ::iimm<WIDTH>(v)};
+    }
   }
 };
 
 template <unsigned int WIDTH = 32>
 class decoded {
  public:
-  decoded(std::uint8_t opcode) : opcode(opcode) {}
+  decoded(std::uint8_t opcode, normalized<WIDTH> rs1, normalized<WIDTH> rs2, unsigned int rd, normalized<WIDTH> imm)
+      : opcode(opcode), rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
+
   decoded() : opcode{0} {}
   std::uint8_t opcode;
   isa::extension ext;
   normalized<WIDTH> rs1;
   normalized<WIDTH> rs2;
-  std::uint32_t rd;
+  unsigned int rd;
   normalized<WIDTH> imm;
   bool mem_access;
   normalized<WIDTH> mem_address;
