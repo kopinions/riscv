@@ -19,7 +19,7 @@ class fetch : public sc_core::sc_module {
   using address_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
 
   fetch(const sc_core::sc_module_name& nm, std::shared_ptr<registers<ADDR_WIDTH>> registers)
-      : sc_core::sc_module{nm}, m_registers{registers}, m_fetched{false}, m_fetched_event{"m_fetched"} {
+      : sc_core::sc_module{nm}, m_registers{registers}, m_fetched{false}, m_fetched_event{"m_fetched"}, m_pc{0} {
     SC_THREAD(operating);
     m_decode_target.register_b_transport(this, &fetch::b_transport);
   }
@@ -36,7 +36,7 @@ class fetch : public sc_core::sc_module {
         trans.set_dmi_allowed(false);             // Mandatory initial value
         trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
         sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
-        trans.set_address(m_registers->read(registers<ADDR_WIDTH>::name::PC));
+        trans.set_address(m_pc);
         m_icache_initiator->b_transport(trans, delay);
         SC_REPORT_INFO(FETCH_TYPE, ("Instruction get by fetch:  " + std::to_string(inst)).c_str());
         m_fetched = true;
@@ -63,6 +63,7 @@ class fetch : public sc_core::sc_module {
   std::shared_ptr<registers<ADDR_WIDTH>> m_registers;
   instruction_type inst;
   sc_core::sc_event m_fetched_event;
+  unsigned int m_pc;
   bool m_fetched;
 };
 #endif  // FETCH_HPP

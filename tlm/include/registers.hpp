@@ -1,20 +1,14 @@
 #ifndef REGISTERS_HPP
 #define REGISTERS_HPP
-#include <systemc>
 #include <bits.hpp>
+#include <systemc>
 
-template <unsigned int BITS = 32>
+template <unsigned int COUNT, unsigned int BITS = 32>
 class registers : public sc_core::sc_module {
  public:
-  using name = enum {
-    PC
-  };
-  using type = typename bits_helper<normalize(BITS)>::type;
-
   registers(sc_core::sc_module_name mn) : sc_core::sc_module{mn}, m_bank{} {
-    const std::initializer_list<name> names = {name::PC};
-    for (auto n : names) {
-      m_bank[n] = static_cast<type>(0);
+    for (auto i = 0; i < COUNT; i++) {
+      m_bank[i] = static_cast<normalized<BITS>>(0);
     }
   }
 
@@ -23,12 +17,12 @@ class registers : public sc_core::sc_module {
   registers &operator=(registers &) = delete;
   registers &operator=(registers &&) = delete;
 
-  type read(name name) { return m_bank[name]; };
+  normalized<BITS> read(unsigned int index) { return m_bank[index]; };
 
-  void write(name name, type value) { m_bank[name] = value; }
+  void write(unsigned int index, normalized<BITS> value) { m_bank[index] = value; }
 
  private:
-  std::map<name, type> m_bank;
+  std::map<unsigned int, normalized<BITS>> m_bank;
 };
 
 #endif  // REGISTERS_HPP

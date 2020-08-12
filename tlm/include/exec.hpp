@@ -11,7 +11,8 @@ class exec : public sc_core::sc_module {
   tlm_utils::simple_initiator_socket<exec> m_decode_initiator;
   tlm_utils::simple_initiator_socket<exec> m_dcache_initiator;
 
-  exec(const sc_core::sc_module_name& nm) : sc_core::sc_module(nm), m_execed{false}, m_execed_event{"execed"} {
+  exec(const sc_core::sc_module_name& nm, std::shared_ptr<registers<ADDR_WIDTH>> registers)
+      : sc_core::sc_module(nm), m_execed{false}, m_execed_event{"execed"}, m_registers{registers} {
     SC_THREAD(operating)
   }
 
@@ -32,7 +33,8 @@ class exec : public sc_core::sc_module {
         m_decode_initiator->b_transport(trans, delay);
 
         SC_REPORT_INFO(EXEC_TYPE, ("Instruction get by exec: " + std::to_string(m_decoded.opcode)).c_str());
-
+        registers<DATA_WIDTH>* regs = m_registers.get();
+        create(m_decoded)->applied(regs, nullptr);
 
         m_execed = true;
         m_execed_event.notify();
@@ -44,6 +46,7 @@ class exec : public sc_core::sc_module {
 
  private:
   bool m_execed;
+  std::shared_ptr<registers<DATA_WIDTH>> m_registers;
   sc_core::sc_event m_execed_event;
 };
 #endif  // EXEC_HPP

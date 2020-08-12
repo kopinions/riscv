@@ -68,8 +68,7 @@ class decode : public sc_core::sc_module {
   decoded<DATA_WIDTH> decoding(instruction_type inst) {
     isa riscv{};
     return riscv.decode(inst, [&](unsigned int reg_id) -> normalized<DATA_WIDTH> {
-      m_registers->read(registers<DATA_WIDTH>::name::PC);
-      return normalized<DATA_WIDTH>{1};
+      return m_registers->read(reg_id);
     });
   }
   std::shared_ptr<registers<DATA_WIDTH>> m_registers;
