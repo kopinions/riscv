@@ -34,7 +34,8 @@ class exec : public sc_core::sc_module {
 
         SC_REPORT_INFO(EXEC_TYPE, ("Instruction get by exec: " + std::to_string(m_decoded.opcode)).c_str());
         registers<DATA_WIDTH>* regs = m_registers.get();
-        create(m_decoded)->applied(regs, nullptr);
+        const typename instruction<DATA_WIDTH>::result result = create(m_decoded)->evaluate();
+        // TODO: write back or mem access
 
         m_execed = true;
         m_execed_event.notify();

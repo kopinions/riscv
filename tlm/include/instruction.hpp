@@ -10,13 +10,42 @@
 template <unsigned int WIDTH = 32>
 class instruction {
  public:
+  class result {
+   public:
+    normalized<WIDTH> flags;
+    normalized<WIDTH> result;
+    bool wb;
+    unsigned int rd_id;
+    bool mem_access;
+    normalized<WIDTH> mem_address;
+    bool branch_valid;
+    normalized<WIDTH> branch_target_address;
+    bool inc_pc;
+    bool mem_write;
+  };
   virtual void applied(registers<WIDTH>* regs, mm* mm) const = 0;
+
+  virtual const result evaluate() const = 0;
   virtual ~instruction() = default;
 };
 
 template <unsigned int WIDTH = 32>
 class rtype : public instruction<WIDTH> {
  public:
+  const typename instruction<WIDTH>::result evaluate() const override {
+    switch ((std::uint32_t{m_func7} << 3) | m_func3) {
+      case 0x000: {
+        typename instruction<WIDTH>::result result = instruction<WIDTH>::result();
+        result.wb = true;
+        result.result = m_rs1 + m_rs2;
+        return result;
+        break;
+      }
+      default:
+        break;
+    }
+  }
+
   rtype(isa::opcode opcode, std::uint8_t func3, std::uint8_t func7, normalized<WIDTH> rs1, normalized<WIDTH> rs2,
         unsigned int rd_id)
       : m_opcode{opcode}, m_func3{func3}, m_func7{func7}, m_rs1{rs1}, m_rs2{rs2}, m_rd_id{rd_id} {}
@@ -44,30 +73,35 @@ template <unsigned int WIDTH = 32>
 class itype : public instruction<WIDTH> {
  public:
   void applied(registers<WIDTH>* regs, mm* mm) const override {}
+  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
 };
 
 template <unsigned int WIDTH = 32>
 class stype : public instruction<WIDTH> {
  public:
   void applied(registers<WIDTH>* regs, mm* mm) const override {}
+  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
 };
 
 template <unsigned int WIDTH = 32>
 class btype : public instruction<WIDTH> {
  public:
   void applied(registers<WIDTH>* regs, mm* mm) const override {}
+  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
 };
 
 template <unsigned int WIDTH = 32>
 class utype : public instruction<WIDTH> {
  public:
   void applied(registers<WIDTH>* regs, mm* mm) const override {}
+  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
 };
 
 template <unsigned int WIDTH = 32>
 class jtype : public instruction<WIDTH> {
  public:
   void applied(registers<WIDTH>* regs, mm* mm) override {}
+  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
 };
 
 template <unsigned int WIDTH = 32>
