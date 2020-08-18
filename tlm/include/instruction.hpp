@@ -7,13 +7,28 @@
 
 #include "mm.hpp"
 #include "registers.hpp"
+
 template <unsigned int WIDTH = 32>
 class instruction {
  public:
+  isa::type type;
+  isa::opcode_t opcode;
+  isa::extension ext;
+  normalized<WIDTH> rs1;
+  normalized<WIDTH> rs2;
+  isa::reg_idx rd;
+  normalized<WIDTH> imm;
+  isa::func3 func3;
+  isa::func7 func7;
+  instruction() {}
+  explicit instruction(isa::opcode_t opcode, isa::func3 func3, isa::func7 func7, normalized<WIDTH> rs1,
+                       normalized<WIDTH> rs2, isa::reg_idx rd, normalized<WIDTH> imm)
+      : opcode(opcode), func3{func3}, func7{func7}, rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
+  instruction(const instruction&) = default;
   class result {
    public:
     normalized<WIDTH> flags;
-    normalized<WIDTH> result;
+    normalized<WIDTH> res;
     bool wb;
     unsigned int rd_id;
     bool mem_access;
@@ -22,100 +37,28 @@ class instruction {
     normalized<WIDTH> branch_target_address;
     bool inc_pc;
     bool mem_write;
+    result() {}
   };
-  virtual void applied(registers<WIDTH>* regs, mm* mm) const = 0;
 
-  virtual const result evaluate() const = 0;
   virtual ~instruction() = default;
 };
 
 template <unsigned int WIDTH = 32>
-class rtype : public instruction<WIDTH> {
+class alu {
  public:
-  const typename instruction<WIDTH>::result evaluate() const override {
-    switch ((std::uint32_t{m_func7} << 3) | m_func3) {
+  virtual typename instruction<WIDTH>::result evaluate(instruction<WIDTH> inst) const {
+    typename instruction<WIDTH>::result res = typename instruction<WIDTH>::result{};
+    switch ((std::uint32_t{inst.func7} << 3) | inst.func3) {
       case 0x000: {
-        typename instruction<WIDTH>::result result = instruction<WIDTH>::result();
-        result.wb = true;
-        result.result = m_rs1 + m_rs2;
-        return result;
+        res.wb = true;
+        res.res = inst.rs1 + inst.rs2;
         break;
       }
       default:
         break;
     }
-  }
-
-  rtype(isa::opcode opcode, std::uint8_t func3, std::uint8_t func7, normalized<WIDTH> rs1, normalized<WIDTH> rs2,
-        unsigned int rd_id)
-      : m_opcode{opcode}, m_func3{func3}, m_func7{func7}, m_rs1{rs1}, m_rs2{rs2}, m_rd_id{rd_id} {}
-  void applied(registers<WIDTH>* regs, mm* mm) const override {
-    switch ((std::uint32_t{m_func7} << 3) | m_func3) {
-      case 0x000:
-        regs->write(m_rd_id, m_rs1 + m_rs2);
-        std::cout << std::to_string(regs->read(m_rd_id)) << std::endl;
-        break;
-      default:
-        break;
-    }
-  }
-
- private:
-  isa::opcode m_opcode;
-  std::uint8_t m_func3;
-  std::uint8_t m_func7;
-  normalized<WIDTH> m_rs1;
-  normalized<WIDTH> m_rs2;
-  unsigned int m_rd_id;
-};
-
-template <unsigned int WIDTH = 32>
-class itype : public instruction<WIDTH> {
- public:
-  void applied(registers<WIDTH>* regs, mm* mm) const override {}
-  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
-};
-
-template <unsigned int WIDTH = 32>
-class stype : public instruction<WIDTH> {
- public:
-  void applied(registers<WIDTH>* regs, mm* mm) const override {}
-  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
-};
-
-template <unsigned int WIDTH = 32>
-class btype : public instruction<WIDTH> {
- public:
-  void applied(registers<WIDTH>* regs, mm* mm) const override {}
-  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
-};
-
-template <unsigned int WIDTH = 32>
-class utype : public instruction<WIDTH> {
- public:
-  void applied(registers<WIDTH>* regs, mm* mm) const override {}
-  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
-};
-
-template <unsigned int WIDTH = 32>
-class jtype : public instruction<WIDTH> {
- public:
-  void applied(registers<WIDTH>* regs, mm* mm) override {}
-  const typename instruction<WIDTH>::result evaluate() const override { return instruction<WIDTH>::result(); }
-};
-
-template <unsigned int WIDTH = 32>
-std::unique_ptr<instruction<WIDTH>> create(decoded<WIDTH> decoded) {
-  switch (isa::type_of<WIDTH>(decoded)) {
-    case isa::type::RTYPE:
-      return std::move(std::make_unique<rtype<WIDTH>>(decoded.opcode, decoded.func3, decoded.func7, decoded.rs1,
-                                                      decoded.rs2, decoded.rd_id));
-    case isa::type::ITYPE:
-      return std::move(std::make_unique<itype<WIDTH>>());
-    default:
-      return std::move(std::make_unique<rtype<WIDTH>>(decoded.opcode, decoded.func3, decoded.func7, decoded.rs1,
-                                                      decoded.rs2, decoded.rd_id));
-  }
+    return res;
+  };
 };
 
 #endif  // INSTRUCTION_HPP

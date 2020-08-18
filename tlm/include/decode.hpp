@@ -26,7 +26,8 @@ class decode : public sc_core::sc_module {
       sc_core::wait(m_decoded_event);
     }
     auto dataptr = payload.get_data_ptr();
-    memcpy(dataptr, m_decoded_instruction, sizeof(*m_decoded_instruction));
+    memcpy(dataptr, reinterpret_cast<unsigned char*>(m_decoded_instruction), sizeof(*m_decoded_instruction));
+
     payload.set_response_status(tlm::TLM_OK_RESPONSE);
     m_decoded = false;
     m_decoded_event.notify();
@@ -52,9 +53,13 @@ class decode : public sc_core::sc_module {
         trans.set_response_status(tlm::TLM_INCOMPLETE_RESPONSE);
         sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
         m_fetch_initiator->b_transport(trans, delay);
+        isa riscv{};
+        const fields<32>& fields = riscv.unpack(inst);
+        instruction<DATA_WIDTH> d = instruction<DATA_WIDTH>{
+            fields.opcode, fields.func3, fields.func7, m_registers->read(fields.rs1), m_registers->read(fields.rs2),
+            fields.rd,     fields.imm};
 
-        decoded<DATA_WIDTH> decoded = decoding(inst);
-        m_decoded_instruction = &decoded;
+        m_decoded_instruction = &d;
         SC_REPORT_INFO(DECODE_TYPE, ("Instruction get by decode:  " + std::to_string(inst)).c_str());
         m_decoded = true;
         m_decoded_event.notify();
@@ -65,15 +70,9 @@ class decode : public sc_core::sc_module {
   }
 
  private:
-  decoded<DATA_WIDTH> decoding(instruction_type inst) {
-    isa riscv{};
-    return riscv.decode(inst, [&](unsigned int reg_id) -> normalized<DATA_WIDTH> {
-      return m_registers->read(reg_id);
-    });
-  }
   std::shared_ptr<registers<DATA_WIDTH>> m_registers;
   sc_core::sc_event m_decoded_event;
   bool m_decoded;
-  decoded<DATA_WIDTH>* m_decoded_instruction;
+  instruction<DATA_WIDTH>* m_decoded_instruction;
 };
 #endif  // DECODE_HPP
