@@ -6,14 +6,16 @@
 #include <map>
 #include <systemc>
 
+#include "bits.hpp"
+
 static const char* ICACHE_TYPE = "icache";
 template <unsigned int ADDR_WIDTH = 32, unsigned int DATA_WIDTH = 32>
 class icache : public sc_core::sc_module {
  public:
   tlm_utils::simple_target_socket<icache> m_fetch_target;
   tlm_utils::simple_initiator_socket<icache> m_code_initiator;
-  using instruction_type = typename bits_helper<normalize(DATA_WIDTH)>::type;
-  using address_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
+  using instruction_type = typename bits::bits_helper<bits::normalize(DATA_WIDTH)>::type;
+  using address_type = typename bits::bits_helper<bits::normalize(ADDR_WIDTH)>::type;
 
   void b_transport(tlm::tlm_generic_payload& fetch, sc_core::sc_time&) {
     instruction_type inst;

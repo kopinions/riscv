@@ -183,7 +183,7 @@ class tlm2axi4 : public sc_core::sc_module {
           auto readlen = (DATA_WIDTH - bitoffset) / 8;
           readlen = readlen <= len ? readlen : len;
           auto position = 0;
-          using read_data_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
+          using read_data_type = typename bits::bits_helper<bits::normalize(ADDR_WIDTH)>::type;
           for (auto i = 0; i < readlen; i += DATA_WIDTH / 8) {
             const data_type& data = m_rdata.read() >> (i * 8 + bitoffset);
             auto copylen = (readlen - i) <= sizeof(data) ? readlen - i : sizeof(data);

@@ -14,27 +14,27 @@ class instruction {
   isa::type type;
   isa::opcode_t opcode;
   isa::extension ext;
-  normalized<WIDTH> rs1;
-  normalized<WIDTH> rs2;
+  bits::type<WIDTH> rs1;
+  bits::type<WIDTH> rs2;
   isa::reg_idx rd;
-  normalized<WIDTH> imm;
+  bits::type<WIDTH> imm;
   isa::func3 func3;
   isa::func7 func7;
   instruction() {}
-  explicit instruction(isa::opcode_t opcode, isa::func3 func3, isa::func7 func7, normalized<WIDTH> rs1,
-                       normalized<WIDTH> rs2, isa::reg_idx rd, normalized<WIDTH> imm)
+  explicit instruction(isa::opcode_t opcode, isa::func3 func3, isa::func7 func7, bits::type<WIDTH> rs1,
+                       bits::type<WIDTH> rs2, isa::reg_idx rd, bits::type<WIDTH> imm)
       : opcode(opcode), func3{func3}, func7{func7}, rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
   instruction(const instruction&) = default;
   class result {
    public:
-    normalized<WIDTH> flags;
-    normalized<WIDTH> res;
+    bits::type<WIDTH> flags;
+    bits::type<WIDTH> res;
     bool wb;
     unsigned int rd_id;
     bool mem_access;
-    normalized<WIDTH> mem_address;
+    bits::type<WIDTH> mem_address;
     bool branch_valid;
-    normalized<WIDTH> branch_target_address;
+    bits::type<WIDTH> branch_target_address;
     bool inc_pc;
     bool mem_write;
     result() {}

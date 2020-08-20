@@ -5,6 +5,7 @@
 #include <isa.hpp>
 #include <systemc>
 
+#include "bits.hpp"
 #include "instruction.hpp"
 
 static const char* DECODE_TYPE = "decode";
@@ -18,8 +19,8 @@ class decode : public sc_core::sc_module {
   tlm_utils::simple_initiator_socket<decode> m_fetch_initiator;
   tlm_utils::simple_target_socket<decode> m_exec_target;
 
-  using instruction_type = typename bits_helper<normalize(DATA_WIDTH)>::type;
-  using address_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
+  using instruction_type = typename bits::bits_helper<bits::normalize(DATA_WIDTH)>::type;
+  using address_type = typename bits::bits_helper<bits::normalize(ADDR_WIDTH)>::type;
 
   void b_transport(tlm::tlm_generic_payload& payload, sc_core::sc_time& delay) {
     if (!m_decoded) {

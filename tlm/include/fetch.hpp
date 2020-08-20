@@ -5,6 +5,7 @@
 #include <iostream>
 #include <systemc>
 
+#include "bits.hpp"
 #include "registers.hpp"
 
 static const char* FETCH_TYPE = "fetch";
@@ -15,8 +16,8 @@ class fetch : public sc_core::sc_module {
   SC_HAS_PROCESS(fetch);
   tlm_utils::simple_target_socket<fetch> m_decode_target;
   tlm_utils::simple_initiator_socket<fetch> m_icache_initiator;
-  using instruction_type = typename bits_helper<normalize(DATA_WIDTH)>::type;
-  using address_type = typename bits_helper<normalize(ADDR_WIDTH)>::type;
+  using instruction_type = typename bits::bits_helper<bits::normalize(DATA_WIDTH)>::type;
+  using address_type = typename bits::bits_helper<bits::normalize(ADDR_WIDTH)>::type;
 
   fetch(const sc_core::sc_module_name& nm, std::shared_ptr<registers<ADDR_WIDTH>> registers)
       : sc_core::sc_module{nm}, m_registers{registers}, m_fetched{false}, m_fetched_event{"m_fetched"}, m_pc{0} {

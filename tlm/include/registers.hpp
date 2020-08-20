@@ -8,7 +8,7 @@ class registers : public sc_core::sc_module {
  public:
   registers(sc_core::sc_module_name mn) : sc_core::sc_module{mn}, m_bank{} {
     for (auto i = 0; i < COUNT; i++) {
-      m_bank[i] = static_cast<normalized<BITS>>(0);
+      m_bank[i] = static_cast<bits::type<BITS>>(0);
     }
   }
 
@@ -17,12 +17,12 @@ class registers : public sc_core::sc_module {
   registers &operator=(registers &) = delete;
   registers &operator=(registers &&) = delete;
 
-  normalized<BITS> read(unsigned int index) { return m_bank[index]; };
+  bits::type<BITS> read(unsigned int index) { return m_bank[index]; };
 
-  void write(unsigned int index, normalized<BITS> value) { m_bank[index] = value; }
+  void write(unsigned int index, bits::type<BITS> value) { m_bank[index] = value; }
 
  private:
-  std::map<unsigned int, normalized<BITS>> m_bank;
+  std::map<unsigned int, bits::type<BITS>> m_bank;
 };
 
 #endif  // REGISTERS_HPP
