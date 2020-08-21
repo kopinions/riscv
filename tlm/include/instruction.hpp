@@ -12,7 +12,7 @@ template <unsigned int WIDTH = 32>
 class instruction {
  public:
   isa::type type;
-  isa::opcode_t opcode;
+  isa::opcode opcode;
   isa::extension ext;
   bits::type<WIDTH> rs1;
   bits::type<WIDTH> rs2;
@@ -21,7 +21,7 @@ class instruction {
   isa::func3 func3;
   isa::func7 func7;
   instruction() {}
-  explicit instruction(isa::opcode_t opcode, isa::func3 func3, isa::func7 func7, bits::type<WIDTH> rs1,
+  explicit instruction(isa::opcode opcode, isa::func3 func3, isa::func7 func7, bits::type<WIDTH> rs1,
                        bits::type<WIDTH> rs2, isa::reg_idx rd, bits::type<WIDTH> imm)
       : opcode(opcode), func3{func3}, func7{func7}, rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
   instruction(const instruction&) = default;
