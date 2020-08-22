@@ -7,24 +7,26 @@
 
 #include "mm.hpp"
 #include "registers.hpp"
+template <unsigned int WIDTH>
+class alu;
 
 template <unsigned int WIDTH = 32>
 class instruction {
  public:
-  isa::type type;
-  isa::opcode opcode;
-  isa::extension ext;
+  friend class alu<WIDTH>;
+  using type = enum { ADD, ADDI, UNSUPPORTED };
+  type typ;
   bits::type<WIDTH> rs1;
   bits::type<WIDTH> rs2;
   isa::reg_idx rd;
   bits::type<WIDTH> imm;
-  isa::func3 func3;
-  isa::func7 func7;
   instruction() {}
-  explicit instruction(isa::opcode opcode, isa::func3 func3, isa::func7 func7, bits::type<WIDTH> rs1,
-                       bits::type<WIDTH> rs2, isa::reg_idx rd, bits::type<WIDTH> imm)
-      : opcode(opcode), func3{func3}, func7{func7}, rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
+  explicit instruction(type type, bits::type<WIDTH> rs1, bits::type<WIDTH> rs2, isa::reg_idx rd, bits::type<WIDTH> imm)
+      : typ(type), rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
   instruction(const instruction&) = default;
+
+  type of() const { return typ; }
+
   class result {
    public:
     bits::type<WIDTH> flags;
@@ -43,13 +45,13 @@ class instruction {
   virtual ~instruction() = default;
 };
 
-template <unsigned int WIDTH = 32>
+template <unsigned int WIDTH>
 class alu {
  public:
   virtual typename instruction<WIDTH>::result evaluate(instruction<WIDTH> inst) const {
     typename instruction<WIDTH>::result res = typename instruction<WIDTH>::result{};
-    switch ((std::uint32_t{inst.func7} << 3) | inst.func3) {
-      case 0x000: {
+    switch (inst.typ) {
+      case instruction<WIDTH>::type::ADD: {
         res.wb = true;
         res.res = inst.rs1 + inst.rs2;
         break;
