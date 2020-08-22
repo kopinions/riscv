@@ -79,7 +79,13 @@ class decode : public sc_core::sc_module {
       }
     }
   }
-  
+
+  template <unsigned int WIDTH>
+  using subdispatch = std::function<typename instruction<WIDTH>::type(isa::func7, isa::func3)>;
+
+  template <isa::type, unsigned int WIDTH>
+  using dispatch = std::function<subdispatch<WIDTH>(isa::type, isa::opcode)>;
+
   typename instruction<DATA_WIDTH>::type opcode_dispatch(const fields<32>& fields) const {
     typename instruction<DATA_WIDTH>::type type;
     switch (fields.opcode) {
@@ -89,7 +95,7 @@ class decode : public sc_core::sc_module {
       default:
         break;
     }
-            return type;
+    return type;
   }
 
   typename instruction<DATA_WIDTH>::type func_dispatch(const fields<32>& fields) const {
@@ -101,7 +107,7 @@ class decode : public sc_core::sc_module {
       default:
         break;
     }
-                return type;
+    return type;
   }
 
  private:
