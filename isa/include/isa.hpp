@@ -24,6 +24,15 @@ class isa {
       case isa::type::STYPE:
         return fields<WIDTH>{STYPE,         op<WIDTH>(v),  function3<WIDTH>(v), func7{0},
                              rs1<WIDTH>(v), rs2<WIDTH>(v), rd<WIDTH>(v),        simm<WIDTH>(v)};
+      case isa::type::BTYPE:
+        return fields<WIDTH>{BTYPE,         op<WIDTH>(v),  function3<WIDTH>(v), func7{0},
+                             rs1<WIDTH>(v), rs2<WIDTH>(v), rd<WIDTH>(v),        bimm<WIDTH>(v)};
+      case isa::type::UTYPE:
+        return fields<WIDTH>{UTYPE,         op<WIDTH>(v),  function3<WIDTH>(v), func7{0},
+                             rs1<WIDTH>(v), rs2<WIDTH>(v), rd<WIDTH>(v),        uimm<WIDTH>(v)};
+      case isa::type::JTYPE:
+        return fields<WIDTH>{JTYPE,         op<WIDTH>(v),  function3<WIDTH>(v), func7{0},
+                             rs1<WIDTH>(v), rs2<WIDTH>(v), rd<WIDTH>(v),        jimm<WIDTH>(v)};
       default:
         return fields<WIDTH>{RTYPE, 0, func3{0}, func7{0}, reg_idx{0}, reg_idx{0}, reg_idx{0}, bits::type<WIDTH>{0}};
     }
@@ -73,6 +82,31 @@ class isa {
     return sign_extend<bits::signed_type<WIDTH>, 12>(imm_h | imm_l);
   }
 
+  template <unsigned int WIDTH>
+  static inline bits::type<WIDTH> bimm(bits::type<WIDTH> inst) {
+    bits::signed_type<WIDTH> imm_s = ((bits::signed_type<WIDTH>)inst >> 30) << 12;
+    bits::signed_type<WIDTH> imm_10_5 = (((bits::signed_type<WIDTH>)inst >> 25) & 0x3F) << 5;
+    bits::signed_type<WIDTH> imm_4_1 = (((bits::signed_type<WIDTH>)inst >> 8) & 0xF) << 1;
+    bits::signed_type<WIDTH> imm_11 = (((bits::signed_type<WIDTH>)inst >> 7) & 0x1) << 11;
+    return sign_extend<bits::signed_type<WIDTH>, 13>((imm_s | imm_11 | imm_10_5 | imm_4_1));
+  }
+
+  template <unsigned int WIDTH>
+  static inline bits::type<WIDTH> uimm(bits::type<WIDTH> inst) {
+    bits::signed_type<WIDTH> imm = ((bits::signed_type<WIDTH>)inst >> 12);
+    return sign_extend<bits::signed_type<WIDTH>, 20>((imm));
+  }
+
+  template <unsigned int WIDTH>
+  static inline bits::type<WIDTH> jimm(bits::type<WIDTH> inst) {
+    bits::signed_type<WIDTH> imm_20_0 = ((bits::signed_type<WIDTH>)inst >> 12);
+    bits::signed_type<WIDTH> imm_20 = (imm_20_0 >> 19);
+    bits::signed_type<WIDTH> imm_10_1 = (imm_20_0 >> 9) & 0x7F;
+    bits::signed_type<WIDTH> imm_11 = (imm_20_0 >> 8) & 0x1;
+    bits::signed_type<WIDTH> imm_19_12 = imm_20_0 & 0xFF;
+    return sign_extend<bits::signed_type<WIDTH>, 21>((imm_20 | imm_19_12 | imm_11 | imm_10_1) << 1);
+  }
+
   template <typename T, unsigned int R>
   static inline T sign_extend(const T x) {
     struct {
@@ -90,6 +124,13 @@ class isa {
         return ITYPE;
       case 0x23:
         return STYPE;
+      case 0x63:
+        return BTYPE;
+      case 0x37:
+      case 0x17:
+        return UTYPE;
+      case 0x6F:
+        return JTYPE;
       default:
         return RTYPE;
     }
