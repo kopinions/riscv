@@ -137,23 +137,42 @@ class isa {
   };
 };
 
+template <isa::type TYPE, unsigned int WIDTH>
+class inferences;
 template <unsigned int WIDTH>
 class fields {
  public:
+  friend class inferences<isa::type::RTYPE, WIDTH>;
+  friend class inferences<isa::type::ITYPE, WIDTH>;
+  friend class inferences<isa::type::STYPE, WIDTH>;
+  friend class inferences<isa::type::UTYPE, WIDTH>;
+  friend class inferences<isa::type::BTYPE, WIDTH>;
+  friend class inferences<isa::type::JTYPE, WIDTH>;
   fields(isa::type type, isa::opcode opcode, isa::func3 func3, isa::func7 func7, isa::reg_idx rs1, isa::reg_idx rs2,
          isa::reg_idx rd, bits::type<WIDTH> imm)
-      : type{type}, opcode{opcode}, func3{func3}, func7{func7}, rs1{rs1}, rs2{rs2}, rd{rd}, imm{imm} {}
+      : m_type{type}, m_opcode{opcode}, m_func3{func3}, m_func7{func7}, m_rs1{rs1}, m_rs2{rs2}, m_rd{rd}, m_imm{imm} {}
 
-  fields() : opcode{0} {}
-  isa::type type;
-  isa::opcode opcode;
-  isa::extension ext;
-  isa::reg_idx rs1;
-  isa::reg_idx rs2;
-  isa::reg_idx rd;
-  bits::type<WIDTH> imm;
-  isa::func3 func3;
-  isa::func7 func7;
+  fields() : m_opcode{0} {}
+
+  isa::opcode opcode() const { return m_opcode; }
+  isa::type type() const { return m_type; }
+  isa::reg_idx rs1() const { return m_rs1; }
+  isa::reg_idx rs2() const { return m_rs2; }
+  isa::reg_idx rd() const { return m_rd; }
+  isa::func3 func3() const { return m_func3; }
+  isa::func7 func7() const { return m_func7; }
+  bits::type<WIDTH> imm() const { return m_imm; }
   fields(const fields&) = default;
+
+ private:
+  isa::type m_type;
+  isa::opcode m_opcode;
+  isa::extension ext;
+  isa::reg_idx m_rs1;
+  isa::reg_idx m_rs2;
+  isa::reg_idx m_rd;
+  bits::type<WIDTH> m_imm;
+  isa::func3 m_func3;
+  isa::func7 m_func7;
 };
 #endif  // ISA_HPP

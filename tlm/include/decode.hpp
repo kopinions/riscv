@@ -6,9 +6,11 @@
 #include <systemc>
 
 #include "bits.hpp"
-#include "instruction.hpp"
+#include <instruction.hpp>
+#include <inferences.hpp>
 
 static const char* DECODE_TYPE = "decode";
+
 
 template <unsigned int ADDR_WIDTH = 32, unsigned int DATA_WIDTH = 32>
 class decode : public sc_core::sc_module {
@@ -56,19 +58,19 @@ class decode : public sc_core::sc_module {
         m_fetch_initiator->b_transport(trans, delay);
         isa riscv{};
         const fields<32>& fields = riscv.unpack(inst);
-        unsigned int rs1 = m_registers->read(fields.rs1);
-        unsigned int rs2 = m_registers->read(fields.rs2);
+        unsigned int rs1 = m_registers->read(fields.rs1());
+        unsigned int rs2 = m_registers->read(fields.rs2());
         typename instruction<DATA_WIDTH>::type type = instruction<DATA_WIDTH>::type::UNSUPPORTED;
-        switch (fields.type) {
+        switch (fields.type()) {
           case isa::type::RTYPE:
-            type = opcode_dispatch(fields);
+            type = inferences<isa::type::RTYPE, DATA_WIDTH>{}.infer(fields);
             break;
           case isa::type::ITYPE:
             break;
           default:
             break;
         }
-        instruction<DATA_WIDTH> d = instruction<DATA_WIDTH>{type, rs1, rs2, fields.rd, fields.imm};
+        instruction<DATA_WIDTH> d = instruction<DATA_WIDTH>{type, rs1, rs2, fields.rd(), fields.imm()};
 
         m_decoded_instruction = &d;
         SC_REPORT_INFO(DECODE_TYPE, ("Instruction get by decode:  " + std::to_string(inst)).c_str());
@@ -78,36 +80,6 @@ class decode : public sc_core::sc_module {
         sc_core::wait(m_decoded_event);
       }
     }
-  }
-
-  template <unsigned int WIDTH>
-  using subdispatch = std::function<typename instruction<WIDTH>::type(isa::func7, isa::func3)>;
-
-  template <isa::type, unsigned int WIDTH>
-  using dispatch = std::function<subdispatch<WIDTH>(isa::type, isa::opcode)>;
-
-  typename instruction<DATA_WIDTH>::type opcode_dispatch(const fields<32>& fields) const {
-    typename instruction<DATA_WIDTH>::type type;
-    switch (fields.opcode) {
-      case 0b0110011:
-        type = func_dispatch(fields);
-        break;
-      default:
-        break;
-    }
-    return type;
-  }
-
-  typename instruction<DATA_WIDTH>::type func_dispatch(const fields<32>& fields) const {
-    typename instruction<DATA_WIDTH>::type type;
-    switch (fields.func7 << 3 | fields.func3) {
-      case 0b0000000000:
-        type = instruction<DATA_WIDTH>::type::ADD;
-        break;
-      default:
-        break;
-    }
-    return type;
   }
 
  private:

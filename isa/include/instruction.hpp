@@ -10,10 +10,20 @@
 template <unsigned int WIDTH>
 class alu;
 
+template <isa::type TYPE, unsigned int WIDTH>
+class inferences;
+
 template <unsigned int WIDTH = 32>
 class instruction {
  public:
   friend class alu<WIDTH>;
+  friend class inferences<isa::type::RTYPE, WIDTH>;
+  friend class inferences<isa::type::ITYPE, WIDTH>;
+  friend class inferences<isa::type::STYPE, WIDTH>;
+  friend class inferences<isa::type::UTYPE, WIDTH>;
+  friend class inferences<isa::type::BTYPE, WIDTH>;
+  friend class inferences<isa::type::JTYPE, WIDTH>;
+
   using type = enum { ADD, ADDI, UNSUPPORTED };
   type typ;
   bits::type<WIDTH> rs1;
