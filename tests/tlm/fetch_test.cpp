@@ -24,7 +24,7 @@ class fetch_test : public uv::test {
     m_sequence->append(add);
     m_sequence->append(add1);
     m_sequence->append(end);
-    start_sequence();
+    m_sequence->start(m_sequencer);
     phase.drop_objection(this);
   }
 

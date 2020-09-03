@@ -33,6 +33,11 @@ class test : public uvm::uvm_test {
     }
   }
 
+  void connect_phase(uvm::uvm_phase& phase) override {
+    uvm_component::connect_phase(phase);
+    m_sequencer = m_testbench->m_sequencer;
+  }
+
   virtual void run_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_test::run_phase(phase);
     UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
@@ -57,12 +62,11 @@ class test : public uvm::uvm_test {
   }
 
  protected:
-  void start_sequence() {
-    m_sequence->start(m_testbench->m_sequencer);
-  };
+  void start_sequence() { m_sequence->start(m_testbench->m_sequencer); };
 
   testbench* m_testbench;
   sequence* m_sequence;
+  sequencer* m_sequencer;
 };
 }  // namespace uv
 #endif  // TEST_HPP
