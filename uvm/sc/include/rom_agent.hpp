@@ -2,9 +2,9 @@
 #define ROM_AGENT
 #include <uvm>
 
+#include "instruction.hpp"
 #include "rom_driver.hpp"
 #include "rom_monitor.hpp"
-#include "rom_sequence_item.hpp"
 #include "rom_sequencer.hpp"
 #include "warnings.hpp"
 namespace uv {

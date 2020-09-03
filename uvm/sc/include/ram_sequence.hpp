@@ -18,6 +18,9 @@ class ram_sequence : public uvm::uvm_sequence<ram_sequence_item> {
   ram_sequence() : ram_sequence{"ram_sequence"} {}
 
   explicit ram_sequence(const std::string& name) : uvm::uvm_sequence<ram_sequence_item>{name}, m_items{} {}
+  void append(ram_sequence_item item){
+
+  };
 
  protected:
   void pre_body() override {

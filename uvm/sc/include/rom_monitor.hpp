@@ -3,7 +3,7 @@
 #include <uvm>
 
 #include "ibus.hpp"
-#include "rom_sequence_item.hpp"
+#include "instruction.hpp"
 
 namespace uv {
 class rom_monitor : public uvm::uvm_monitor {
@@ -26,7 +26,7 @@ class rom_monitor : public uvm::uvm_monitor {
   }
 
   virtual void run_phase(uvm::uvm_phase& phase) override {
-    rom_sequence_item inst;
+    instruction inst;
     while (true) {
       UVM_INFO(get_name(), "Run phase", uvm::UVM_FULL);
 

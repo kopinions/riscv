@@ -1,3 +1,5 @@
+#include <instruction.hpp>
+
 #include "ram_sequence.hpp"
 #include "rom_sequence.hpp"
 #include "test.hpp"
@@ -16,6 +18,12 @@ class fetch_test : public uv::test {
 
   void run_phase(uvm::uvm_phase& phase) override {
     phase.raise_objection(this);
+    uv::instruction add{0, 0x007302B3};
+    uv::instruction add1{4, 0x007302B3};
+    uv::instruction end{8, 0x00000000};
+    m_sequence->append(add);
+    m_sequence->append(add1);
+    m_sequence->append(end);
     start_sequence();
     phase.drop_objection(this);
   }

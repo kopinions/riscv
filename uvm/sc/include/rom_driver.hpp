@@ -4,10 +4,10 @@
 #include <warnings.hpp>
 
 #include "ibus.hpp"
-#include "rom_sequence_item.hpp"
+#include "instruction.hpp"
 
 namespace uv {
-class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
+class rom_driver : public uvm::uvm_driver<instruction> {
  public:
   DISABLE_WARNING_PUSH
   DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
@@ -15,19 +15,19 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
   DISABLE_WARNING_POP
 
   rom_driver(const std::string& name = "rom_driver")
-      : uvm::uvm_driver<rom_sequence_item>{uvm::uvm_component_name{name.c_str()}},
+      : uvm::uvm_driver<instruction>{uvm::uvm_component_name{name.c_str()}},
         m_rom_sequence_item{nullptr},
         m_rom_sequence_item_rsp{nullptr} {}
   ~rom_driver() = default;
 
  protected:
   void build_phase(uvm::uvm_phase& phase) override {
-    m_rom_sequence_item = rom_sequence_item::type_id::create("rom_sequence_item", this);
+    m_rom_sequence_item = instruction::type_id::create("rom_sequence_item", this);
 
     if (m_rom_sequence_item == nullptr) {
       UVM_FATAL(get_name(), "Cannot create rom sequence item!");
     }
-    m_rom_sequence_item_rsp = rom_sequence_item::type_id::create("rom_sequence_item_rsp", this);
+    m_rom_sequence_item_rsp = instruction::type_id::create("rom_sequence_item_rsp", this);
 
     if (m_rom_sequence_item_rsp == nullptr) {
       UVM_FATAL(get_name(), "Cannot create rom sequence item rsp!");
@@ -69,8 +69,8 @@ class rom_driver : public uvm::uvm_driver<rom_sequence_item> {
     }
   }
 
-  rom_sequence_item* m_rom_sequence_item{};
-  rom_sequence_item* m_rom_sequence_item_rsp{};
+  instruction* m_rom_sequence_item{};
+  instruction* m_rom_sequence_item_rsp{};
   ibus* m_vif;
 };
 }  // namespace uv

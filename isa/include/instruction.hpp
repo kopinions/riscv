@@ -7,11 +7,12 @@
 
 #include "mm.hpp"
 #include "registers.hpp"
-template <unsigned int WIDTH>
-class alu;
 
 template <isa::type TYPE, unsigned int WIDTH>
 class inferences;
+
+template <unsigned int WIDTH>
+class alu;
 
 template <unsigned int WIDTH = 32>
 class instruction {
@@ -53,24 +54,6 @@ class instruction {
   };
 
   virtual ~instruction() = default;
-};
-
-template <unsigned int WIDTH>
-class alu {
- public:
-  virtual typename instruction<WIDTH>::result evaluate(instruction<WIDTH> inst) const {
-    typename instruction<WIDTH>::result res = typename instruction<WIDTH>::result{};
-    switch (inst.typ) {
-      case instruction<WIDTH>::type::ADD: {
-        res.wb = true;
-        res.res = inst.rs1 + inst.rs2;
-        break;
-      }
-      default:
-        break;
-    }
-    return res;
-  };
 };
 
 #endif  // INSTRUCTION_HPP

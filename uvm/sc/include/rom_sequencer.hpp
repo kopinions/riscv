@@ -2,10 +2,10 @@
 #define ROM_SEQUENCER
 #include <uvm>
 
-#include "rom_sequence_item.hpp"
+#include "instruction.hpp"
 
 namespace uv {
-class rom_sequencer : public uvm::uvm_sequencer<rom_sequence_item> {
+class rom_sequencer : public uvm::uvm_sequencer<instruction> {
  public:
   DISABLE_WARNING_PUSH
   DISABLE_WARNING_INCONSISTENT_MISSING_OVERRIDE
@@ -13,7 +13,7 @@ class rom_sequencer : public uvm::uvm_sequencer<rom_sequence_item> {
   DISABLE_WARNING_POP
 
   rom_sequencer(const std::string &name)
-      : uvm::uvm_sequencer<rom_sequence_item>{uvm::uvm_component_name{name.c_str()}} {}
+      : uvm::uvm_sequencer<instruction>{uvm::uvm_component_name{name.c_str()}} {}
 
   ~rom_sequencer() = default;
 };

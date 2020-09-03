@@ -39,6 +39,15 @@ class sequence : public uvm::uvm_sequence<> {
 
   ~sequence() override = default;
 
+  template <typename V>
+  void append(V& v) {
+    if (auto* i = dynamic_cast<uv::instruction*>(&v)) {
+      m_rom_sequence->append(*i);
+    } else if (auto* i = dynamic_cast<uv::ram_sequence_item*>(&v)) {
+      m_ram_sequence->append(*i);
+    }
+  }
+
  protected:
   void pre_body() override {
     auto starting_phase = get_starting_phase();

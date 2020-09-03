@@ -3,6 +3,8 @@
 #include <tlm_utils/simple_initiator_socket.h>
 
 #include <systemc>
+
+#include "alu.hpp"
 static const char* EXEC_TYPE = "exec";
 template <unsigned int ADDR_WIDTH = 32, unsigned int DATA_WIDTH = 32>
 class exec : public sc_core::sc_module {

@@ -41,6 +41,7 @@ class fetch : public sc_core::sc_module {
         m_icache_initiator->b_transport(trans, delay);
         SC_REPORT_INFO(FETCH_TYPE, ("Instruction get by fetch:  " + std::to_string(inst)).c_str());
         m_fetched = true;
+        m_pc += 4;
         m_fetched_event.notify();
       } else {
         sc_core::wait(m_fetched_event);
