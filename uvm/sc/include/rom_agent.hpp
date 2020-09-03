@@ -64,6 +64,7 @@ class rom_agent : public uvm::uvm_agent {
   rom_sequencer* m_rom_sequencer;
   rom_driver* m_rom_driver;
   rom_monitor* m_rom_monitor;
+  uvm::uvm_analysis_port<packet> m_analysis_port;
 };
 }  // namespace uv
 #endif  // ROM_AGENT

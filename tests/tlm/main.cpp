@@ -52,5 +52,8 @@ int sc_main(int argc, char* argv[]) {
   uvm::uvm_config_db<ibus*>::set(nullptr, "*.ram_agent.*", "vif", &data_vif);
 
   uvm::run_test();
-  return 0;
+
+  bool test_passed{false};
+  uvm::uvm_config_db<bool>::get(nullptr, "*", "test_passed", test_passed);
+  return test_passed ? EXIT_SUCCESS : EXIT_FAILURE;
 }

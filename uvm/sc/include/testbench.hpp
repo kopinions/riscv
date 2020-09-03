@@ -4,6 +4,7 @@
 
 #include "ram_agent.hpp"
 #include "rom_agent.hpp"
+#include "scoreboard.hpp"
 
 namespace uv {
 
@@ -31,9 +32,15 @@ class testbench : public uvm::uvm_env {
     if (m_rom_agent == nullptr) {
       UVM_FATAL(get_name(), "Cannot create rom agent! Simulation aborted!");
     }
+
     m_sequencer = sequencer::type_id::create("sequencer", this);
     if (m_sequencer == nullptr) {
       UVM_FATAL(get_name(), "Cannot create sequencer! Simulation aborted!");
+    }
+
+    m_scoreboard = scoreboard::type_id::create("scoreboard", this);
+    if (m_scoreboard == nullptr) {
+      UVM_FATAL(get_name(), "Cannot create m_scoreboard! Simulation aborted!");
     }
 
     uvm::uvm_config_db<int>::set(this, "ram_agent", "is_active", uvm::UVM_ACTIVE);
@@ -44,11 +51,15 @@ class testbench : public uvm::uvm_env {
     uvm::uvm_env::connect_phase(phase);
     m_sequencer->m_ram_sequencer = m_ram_agent->m_ram_sequencer;
     m_sequencer->m_rom_sequencer = m_rom_agent->m_rom_sequencer;
+
+    m_ram_agent->m_analysis_port.connect(m_scoreboard->m_ram_analysis_export);
+    m_rom_agent->m_analysis_port.connect(m_scoreboard->m_rom_analysis_export);
   }
 
  private:
   ram_agent* m_ram_agent;
   rom_agent* m_rom_agent;
+  scoreboard* m_scoreboard;
   sequencer* m_sequencer;
 };
 

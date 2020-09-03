@@ -2,11 +2,13 @@
 #define RAM_AGENT
 #include <uvm>
 
+#include "packet.hpp"
 #include "ram_driver.hpp"
 #include "ram_monitor.hpp"
 #include "ram_sequence_item.hpp"
 #include "ram_sequencer.hpp"
 #include "warnings.hpp"
+
 namespace uv {
 class ram_agent : public uvm::uvm_agent {
  public:
@@ -69,6 +71,7 @@ class ram_agent : public uvm::uvm_agent {
   ram_sequencer* m_ram_sequencer;
   ram_driver* m_ram_driver;
   ram_monitor* m_ram_monitor;
+  uvm::uvm_analysis_port<packet> m_analysis_port;
 };
 }  // namespace uv
 #endif  // RAM_AGENT

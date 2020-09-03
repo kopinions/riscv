@@ -48,13 +48,18 @@ class test : public uvm::uvm_test {
 
   void extract_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_test::extract_phase(phase);
-    uvm::uvm_config_db<bool>::set(nullptr, "*", "test_passed", true);
+    uvm::uvm_config_db<bool>::set(nullptr, "*", "test_passed", m_testbench->m_scoreboard->passed());
   }
 
   void report_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_test::report_phase(phase);
 
-    UVM_INFO(get_name(), "TEST PASSED", uvm::UVM_FULL);
+    if (m_testbench->m_scoreboard->passed()) {
+      UVM_INFO(get_name(), "TEST PASSED", uvm::UVM_NONE);
+    }
+    else {
+      UVM_ERROR(get_name(), "TEST FAILED");
+    }
 
     uvm::uvm_root::get()->set_finish_on_completion(true);
     uvm::uvm_report_server::get_server()->report_summarize();
@@ -62,7 +67,6 @@ class test : public uvm::uvm_test {
   }
 
  protected:
-  void start_sequence() { m_sequence->start(m_testbench->m_sequencer); };
 
   testbench* m_testbench;
   sequence* m_sequence;
