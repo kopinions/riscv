@@ -16,7 +16,7 @@ if (NOT SYSTEMC_FOUND)
     include(ExternalProject)
     ExternalProject_Add(SystemC
             URL https://www.accellera.org/images/downloads/standards/systemc/systemc-2.3.3.tar.gz
-            PREFIX ${CMAKE_SOURCE_DIR}/external/SystemC
+            INSTALL_DIR ${CMAKE_SOURCE_DIR}/3rdparty/sysc
             CMAKE_COMMAND "${CMAKE_COMMAND}"
             CMAKE_ARGS
             -DCMAKE_CXX_STANDARD:number=14
@@ -25,17 +25,19 @@ if (NOT SYSTEMC_FOUND)
             )
     ExternalProject_Add(UVM-SystemC
             URL https://www.accellera.org/images/downloads/drafts-review/uvm-systemc-10-beta3tar.gz
-            PREFIX ${CMAKE_SOURCE_DIR}/external/SystemC
+            INSTALL_DIR ${CMAKE_SOURCE_DIR}/3rdparty/uvm
             CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++14 <SOURCE_DIR>/configure --enable-shared
             --prefix=<INSTALL_DIR>
-            --with-systemc=${CMAKE_SOURCE_DIR}/external/SystemC/
+            --with-systemc=${CMAKE_SOURCE_DIR}/3rdparty/sysc
             --with-arch-suffix=
             BUILD_COMMAND make -j$(nproc) && make install -j$(nproc)
             DEPENDS SystemC
             )
 
-    include_directories(external/SystemC/include)
-    link_directories(external/SystemC/lib)
+    include_directories(3rdparty/uvm/include)
+    include_directories(3rdparty/sysc/include)
+    link_directories(3rdparty/uvm/lib)
+    link_directories(3rdparty/sysc/lib)
 endif ()
 
 include(FetchContent)

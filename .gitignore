@@ -1,5 +1,6 @@
 build
-external
+3rdparty/uvm
+3rdparty/sysc
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake
