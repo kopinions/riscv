@@ -15,6 +15,13 @@ class packet : public uvm::uvm_object {
     return uvm_object::do_compare(rhs, comparer);
   }
 
+  packet() {}
+
+  packet(const packet &) = default;
+  packet(packet &&) = default;
+  packet &operator=(const packet &) = default;
+  packet &operator=(packet &&) = default;
+
   packet(const std::string &name) : uvm_object(name) {}
 };
 }  // namespace uv

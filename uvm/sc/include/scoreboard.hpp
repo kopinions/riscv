@@ -1,13 +1,18 @@
 #ifndef SCOREBOARD_HPP
 #define SCOREBOARD_HPP
 
-#include <uvm>
 #include <tlm>
+#include <uvm>
 #include <warnings.hpp>
 
 #include "packet.hpp"
 
 namespace uv {
+class analysis_fifo : public tlm::tlm_analysis_if<packet>, public tlm::tlm_fifo<packet> {
+ public:
+  analysis_fifo(const char* nm) : tlm::tlm_fifo<packet>(nm, -16) {}
+  void write(const packet& t) override { nb_put(t); }
+};
 
 class scoreboard : public uvm::uvm_scoreboard {
  public:
@@ -19,9 +24,9 @@ class scoreboard : public uvm::uvm_scoreboard {
 
   void connect_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_scoreboard::connect_phase(phase);
-//    m_ram_analysis_export.connect(m_ram_fifo);
-//    m_rom_analysis_export.connect(m_rom_fifo);
-//    m_golden_analysis_export.connect(m_golden_fifo);
+    m_ram_analysis_export.connect(m_ram_fifo);
+    m_rom_analysis_export.connect(m_rom_fifo);
+    m_golden_analysis_export.connect(m_golden_fifo);
   }
 
   scoreboard() : scoreboard{"scoreboard"} {}
@@ -31,12 +36,10 @@ class scoreboard : public uvm::uvm_scoreboard {
         m_rom_analysis_export{"rom_analysis_export"},
         m_ram_analysis_export{"ram_analysis_export"},
         m_golden_analysis_export{"golden_analysis_export"},
-        m_error{false}
-//        ,
-//        m_rom_fifo{"rom_fifo"},
-//        m_ram_fifo{"ram_fifo"},
-//        m_golden_fifo{"golden_fifo"}
-        {};
+        m_error{false},
+        m_rom_fifo{"rom_fifo"},
+        m_ram_fifo{"ram_fifo"},
+        m_golden_fifo{"golden_fifo"} {};
 
   scoreboard(scoreboard&&) = delete;
 
@@ -51,34 +54,33 @@ class scoreboard : public uvm::uvm_scoreboard {
   void run_phase(uvm::uvm_phase& phase) override {
     uvm::uvm_scoreboard::run_phase(phase);
     while (true) {
-      //      packet* ram_packet;
-      //      packet* rom_packet;
-      //      packet* golden_packet;
-      //      *ram_packet = m_ram_fifo.get(nullptr);
-      //      *golden_packet = m_rom_fifo.get(nullptr);
-      //      *golden_packet = m_golden_fifo.get(nullptr);
-      //
-      //      if (!ram_packet->compare(*golden_packet)) {
-      //        m_error = true;
-      //
-      //        ram_packet->set_name("ram_packet");
-      //        rom_packet->set_name("rom_packet");
-      //        golden_packet->set_name("golden_packet");
-      //      }
-      m_error = true;
+      packet* ram_packet;
+      packet* rom_packet;
+      packet* golden_packet;
+      *ram_packet = m_ram_fifo.get(nullptr);
+      *rom_packet = m_rom_fifo.get(nullptr);
+      *golden_packet = m_golden_fifo.get(nullptr);
+
+      if (!ram_packet->compare(*golden_packet)) {
+        m_error = true;
+
+        ram_packet->set_name("ram_packet");
+        rom_packet->set_name("rom_packet");
+        golden_packet->set_name("golden_packet");
+      }
     }
   }
 
-  bool passed() { return m_error; }
+  bool passed() { return !m_error; }
 
  protected:
   bool m_error;
-  uvm::uvm_analysis_export<packet> m_ram_analysis_export;
-  uvm::uvm_analysis_export<packet> m_rom_analysis_export;
-  uvm::uvm_analysis_export<packet> m_golden_analysis_export;
-//    tlm::tlm_analysis_fifo<packet> m_ram_fifo;
-  //  tlm::tlm_analysis_fifo<packet> m_rom_fifo;
-  //  tlm::tlm_analysis_fifo<packet> m_golden_fifo;
+  uvm::uvm_analysis_export<uv::packet> m_ram_analysis_export;
+  uvm::uvm_analysis_export<uv::packet> m_rom_analysis_export;
+  uvm::uvm_analysis_export<uv::packet> m_golden_analysis_export;
+  analysis_fifo m_ram_fifo;
+  analysis_fifo m_rom_fifo;
+  analysis_fifo m_golden_fifo;
 };
 }  // namespace uv
 
