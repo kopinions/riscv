@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(riscv CXX)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS, ON)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_LIST_DIR}/cmake")
@@ -19,14 +19,14 @@ if (NOT SYSTEMC_FOUND)
             INSTALL_DIR ${CMAKE_SOURCE_DIR}/3rdparty/sysc
             CMAKE_COMMAND "${CMAKE_COMMAND}"
             CMAKE_ARGS
-            -DCMAKE_CXX_STANDARD:number=14
+            -DCMAKE_CXX_STANDARD:number=20
             -DCMAKE_INSTALL_PREFIX:string=<INSTALL_DIR>
             BUILD_COMMAND make -j$(nproc) && make install -j$(nproc)
             )
     ExternalProject_Add(UVM-SystemC
             URL https://www.accellera.org/images/downloads/drafts-review/uvm-systemc-10-beta3tar.gz
             INSTALL_DIR ${CMAKE_SOURCE_DIR}/3rdparty/uvm
-            CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++14 <SOURCE_DIR>/configure --enable-shared
+            CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++2a <SOURCE_DIR>/configure --enable-shared
             --prefix=<INSTALL_DIR>
             --with-systemc=${CMAKE_SOURCE_DIR}/3rdparty/sysc
             --with-arch-suffix=
