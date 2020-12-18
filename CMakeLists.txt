@@ -9,12 +9,6 @@ set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}"
         "${CMAKE_CURRENT_LIST_DIR}/3rdparty/uvm"
         "${CMAKE_CURRENT_LIST_DIR}/3rdparty/scv")
 
-include_directories(commons/include)
-include_directories(bridges)
-include_directories(mcu/tlm/include)
-include_directories(uvm/sc/include)
-include_directories(isa/include)
-
 find_package(SystemC
         COMPONENTS UVM SCV)
 if (NOT SYSTEMC_FOUND)
@@ -49,16 +43,19 @@ if (NOT SYSTEMC_FOUND)
             BUILD_COMMAND make -j$(nproc) && make install -j$(nproc)
             DEPENDS SystemC
             )
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/uvm/include)
+    link_directories(${CMAKE_CURRENT_LIST_DIR}/uvm/lib)
 
-    include_directories(3rdparty/uvm/include)
-    link_directories(3rdparty/uvm/lib)
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/sysc/include)
+    link_directories(${CMAKE_CURRENT_LIST_DIR}/sysc/lib)
 
-    include_directories(3rdparty/sysc/include)
-    link_directories(3rdparty/sysc/lib)
-
-    include_directories(3rdparty/scv/include)
-    link_directories(3rdparty/scv/lib)
+    include_directories(${CMAKE_CURRENT_LIST_DIR}/scv/include)
+    link_directories(${CMAKE_CURRENT_LIST_DIR}/scv/lib)
+else ()
+    include_directories(${SYSTEMC_INCLUDE_DIRS})
+    link_directories(${SYSTEMC_LIBRARIES})
 endif ()
+
 
 include(FetchContent)
 FetchContent_Declare(
@@ -86,6 +83,12 @@ macro(gtest TESTNAME)
             PROPERTIES FOLDER "tests")
 endmacro()
 
+
+include_directories(commons/include)
+include_directories(bridges)
+include_directories(mcu/tlm/include)
+include_directories(uvm/sc/include)
+include_directories(isa/include)
 add_subdirectory(uvm)
 add_subdirectory(mcu)
 include(CTest)
