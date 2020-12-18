@@ -6,7 +6,7 @@ add_executable(${hdl_name}_test
         )
 
 target_compile_options(${hdl_name}_test
-        PRIVATE "-std=c++11"
+        PRIVATE "-std=c++2a"
         )
 
 target_include_directories(${hdl_name}_test SYSTEM PRIVATE

@@ -1,6 +1,7 @@
 build
 3rdparty/uvm
 3rdparty/sysc
+3rdparty/scv
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake
