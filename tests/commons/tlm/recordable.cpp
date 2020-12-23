@@ -4,13 +4,19 @@
 #include "fake_sender.hpp"
 #include "recording.hpp"
 
+class mod : public sc_core::sc_module {
+ public:
+  mod(const sc_module_name& nm) : sc_module(nm) {}
+  outbound<recordable_initiator_socket<>> o;
+};
+
 TEST(recordable_test, should_able_to_set_specific_bit) {
   fake_receiver rcv{"rcv"};
-  outbound<> o;
-  o.bind(rcv.inputs);
+  mod m{"xxx"};
+  m.o.bind(rcv.inputs);
   tlm::tlm_generic_payload payload;
   sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
-  o->b_transport(payload, delay);
+  m.o->b_transport(payload, delay);
 }
 
 int sc_main(int argc, char** argv) {

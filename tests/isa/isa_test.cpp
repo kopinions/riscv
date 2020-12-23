@@ -103,3 +103,8 @@ TEST(isa, should_able_to_unpack_the_j_instruction) {
   ASSERT_THAT(fields.rd(), testing::Eq(10));
   ASSERT_THAT(fields.imm(), testing::Eq(254));
 }
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
