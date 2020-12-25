@@ -1,7 +1,7 @@
 #pragma once
 #include <tlm>
 
-#include "recorder.hpp"
+#include "recording/recorder.hpp"
 
 class recordable {
  public:

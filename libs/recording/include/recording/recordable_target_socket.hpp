@@ -1,5 +1,5 @@
 #pragma once
-#include "recordable.hpp"
+#include "recording/recordable.hpp"
 
 template <unsigned int BUSWIDTH = 32, typename TYPES = tlm::tlm_base_protocol_types, int N = 1,
           sc_core::sc_port_policy POL = sc_core::SC_ONE_OR_MORE_BOUND>

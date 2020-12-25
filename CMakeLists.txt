@@ -66,12 +66,13 @@ else ()
 endif ()
 
 include_directories(commons/include)
-include_directories(bridges)
+include_directories(libs/bridges/include)
 include_directories(mcu/tlm/include)
 include_directories(uvm/sc/include)
 include_directories(isa/include)
 add_subdirectory(uvm)
 add_subdirectory(mcu)
+add_subdirectory(libs/recording)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -94,7 +95,11 @@ macro(gtest TESTNAME)
     add_executable(${TESTNAME} ${ARGN})
     target_include_directories(${TESTNAME} PRIVATE ${SYSTEMC_INCLUDE_DIRS})
     target_link_directories(${TESTNAME} PUBLIC ${SYSTEMC_LIBRARY_DIRS})
-    target_link_libraries(${TESTNAME} PUBLIC gtest gmock  ${SYSTEMC_LIBRARIES} gtest_main)
+    target_link_directories(${TESTNAME} PUBLIC /Volumes/bank/workspace/1si/ic/riscv/cmake-build-debug/libs/recording)
+    target_link_libraries(${TESTNAME} PUBLIC gtest gmock recording ${SYSTEMC_LIBRARIES} gtest_main )
+    get_target_property(RECORDING_INCLUDES recording INCLUDE_DIRECTORIES)
+    message(STATUS "XXXX" ${RECORDING_INCLUDES})
+    target_include_directories(${TESTNAME} PRIVATE ${RECORDING_INCLUDES})
     target_compile_options(${TESTNAME} PRIVATE -std=c++17 -DSC_CPLUSPLUS=201703L)
     gtest_discover_tests(${TESTNAME}
             TEST_PREFIX "${TESTNAME}."
