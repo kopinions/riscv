@@ -22,7 +22,10 @@ TEST(recordable_test, should_able_to_set_specific_bit) {
   mod m{"xxx"};
   m.o.bind(rcv.inputs);
   tlm::tlm_generic_payload payload;
-  sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
+  std::string a = "test for data";
+  payload.set_data_ptr((unsigned char*)a.c_str());
+  payload.set_data_length(a.length());
+  sc_core::sc_time delay = sc_core::sc_time(100, sc_core::SC_NS);
   tlm::tlm_phase phase = tlm::BEGIN_REQ;
   m.o->nb_transport_fw(payload, phase, delay);
   sc_core::sc_start();

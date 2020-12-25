@@ -13,7 +13,7 @@ enum tx_relationship {
 };
 
 static constexpr std::array<std::string_view, 2> tx_relationship_literal = {{"PARENT/CHILD", "PRED/SUCC"}};
-static inline constexpr std::string_view rel_str(tx_relationship rel) { return (tx_relationship_literal[rel]); }
+static inline constexpr const char* relationship_name(tx_relationship rel) { return (tx_relationship_literal[rel].data()); }
 
 template <typename TYPES = tlm::tlm_base_protocol_types>
 class recorder : public virtual tlm::tlm_fw_transport_if<TYPES>,
@@ -50,7 +50,6 @@ class recorder : public virtual tlm::tlm_fw_transport_if<TYPES>,
   sc_core::sc_attribute<bool> tracing_enabled;
   sc_core::sc_attribute<bool> timed_enabled;
 
-  enum DIR { FW, BW };
   //! transaction generator handle for forward non-blocking transactions
   std::vector<scv_tr_generator<std::string, tlm::tlm_sync_enum>*> nb_fw_transactor;
   //! transaction generator handle for backward non-blocking transactions
@@ -66,7 +65,6 @@ tlm::tlm_sync_enum recorder<TYPES>::nb_transport_bw(typename TYPES::tlm_payload_
   return tlm::TLM_UPDATED;
 }
 
-
 template <typename TYPES>
 tlm::tlm_sync_enum recorder<TYPES>::nb_transport_fw(typename TYPES::tlm_payload_type& payload,
                                                     typename TYPES::tlm_phase_type& phase, sc_core::sc_time& t) {
@@ -74,29 +72,23 @@ tlm::tlm_sync_enum recorder<TYPES>::nb_transport_fw(typename TYPES::tlm_payload_
     return fw_port->nb_transport_fw(payload, phase, t);
   }
 
-  scv_tr_handle h = nb_fw_transactor[payload.get_command()]->begin_transaction(phase.get_name());
-  recording_extension* preExt = nullptr;
-  payload.get_extension(preExt);
-  if (preExt == nullptr) {  // we are the first recording this transaction
-    preExt = new recording_extension(h, this);
+  scv_tr_handle h = nb_fw_transactor[payload.get_command()]->begin_transaction(std::string{phase.get_name()});
+  auto prev = payload.template get_extension<recording_extension>();
+  if (prev == nullptr) {  // we are the first recording this transaction
+    prev = new recording_extension(h, this);
     if (payload.has_mm())
-      payload.set_auto_extension(preExt);
+      payload.set_auto_extension(prev);
     else
-      payload.set_extension(preExt);
+      payload.set_extension(prev);
   } else {
-    // link handle if we have a predecessor
-    h.add_relation(rel_str(PREDECESSOR_SUCCESSOR).data(), preExt->tx());
+    h.add_relation(relationship_name(PREDECESSOR_SUCCESSOR), prev->tx());
   }
   // update the extension
-  if (preExt) {
-    preExt->tx(h);
+  if (prev) {
+    prev->tx(h);
   }
   h.record_attribute("delay", t.to_string());
 
-  /*************************************************************************
-   * do the timed notification
-   *************************************************************************/
-  recordable_payload tgd(payload);
   //  if (timed_enabled.value) {
   //    auto* req = mm::get().allocate();
   //    req->acquire();
@@ -104,14 +96,11 @@ tlm::tlm_sync_enum recorder<TYPES>::nb_transport_fw(typename TYPES::tlm_payload_
   //    req->parent = h;
   //    nb_timed_peq.notify(*req, phase, delay);
   //  }
-  /*************************************************************************
-   * do the access
-   *************************************************************************/
+
   tlm::tlm_sync_enum status = fw_port->nb_transport_fw(payload, phase, t);
-  /*************************************************************************
-   * handle recording
-   *************************************************************************/
-  //  tgd.response_status = payload.get_response_status();
+
+  recordable_payload tgd(payload);
+  tgd.response_status = payload.get_response_status();
   h.record_attribute("trans.uid", reinterpret_cast<uintptr_t>(&payload));
   h.record_attribute("trans", tgd);
   if (payload.get_data_length() < 8) {
@@ -127,11 +116,11 @@ tlm::tlm_sync_enum recorder<TYPES>::nb_transport_fw(typename TYPES::tlm_payload_
   h.record_attribute("delay[return_path]", t.to_string());
   // get the extension and free the memory if it was mine
   if (status == tlm::TLM_COMPLETED || (status == tlm::TLM_ACCEPTED && phase == tlm::END_RESP)) {
-    payload.get_extension(preExt);
-    if (preExt && preExt->created_by() == this) {
+    payload.get_extension(prev);
+    if (prev && prev->created_by() == this) {
       payload.set_extension(static_cast<recording_extension*>(nullptr));
       if (!payload.has_mm()) {
-        delete preExt;
+        delete prev;
       }
     }
     /*************************************************************************
@@ -181,7 +170,7 @@ void recorder<TYPES>::invalidate_direct_mem_ptr(sc_dt::uint64 start_range, sc_dt
 
 template <typename TYPES>
 bool recorder<TYPES>::enabled() const {
-  return m_db != NULL && tracing_enabled.value;
+  return m_db != nullptr && tracing_enabled.value;
 }
 
 static constexpr std::string_view get_parent(char const* hier_name) {
