@@ -34,7 +34,8 @@ class outbound : public RECORDABLE {
     using transport_fct = std::function<sync_enum_type(transaction_type&, phase_type&, sc_core::sc_time&)>;
     using invalidate_dmi_fct = std::function<void(sc_dt::uint64, sc_dt::uint64)>;
 
-    bw_transport_if(const std::string& name) : m_name(name), m_transport_ptr(0), m_invalidate_direct_mem_ptr(0) {}
+    explicit bw_transport_if(const std::string& name)
+        : m_name(name), m_transport_ptr(0), m_invalidate_direct_mem_ptr(0) {}
 
     void set_transport_function(transport_fct p) {
       if (m_transport_ptr) {
