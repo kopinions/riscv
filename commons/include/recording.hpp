@@ -1,6 +1,7 @@
 #pragma once
 #include "inbound.hpp"
 #include "outbound.hpp"
+#include "payload_memory_manager.hpp"
 #include "recordable.hpp"
 #include "recordable_initiator_socket.hpp"
 #include "recordable_target_socket.hpp"
