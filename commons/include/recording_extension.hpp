@@ -60,12 +60,13 @@ class scv_extensions<tlm::tlm_gp_option> : public scv_enum_base<tlm::tlm_gp_opti
 };
 
 template <>
-class scv_extensions<recordable_payload> : public scv_extensions_base<recordable_payload> {
+class scv_extensions<recordable_data> : public scv_extensions_base<recordable_data> {
  public:
   scv_extensions<sc_dt::uint64> address;
   scv_extensions<tlm::tlm_command> command;
-  scv_extensions<unsigned char*> data;
+  scv_extensions<unsigned char*> data_ptr;
   scv_extensions<unsigned int> data_length;
+  scv_extensions<uint64_t> data_thumbnail;
   scv_extensions<tlm::tlm_response_status> response_status;
   scv_extensions<bool> dmi_allowed;
   scv_extensions<unsigned char*> byte_enable;
@@ -74,11 +75,12 @@ class scv_extensions<recordable_payload> : public scv_extensions_base<recordable
   scv_extensions<tlm::tlm_gp_option> gp_option;
   scv_extensions<uintptr_t> uid;
 
-  SCV_EXTENSIONS_CTOR(recordable_payload) {  // NOLINT
+  SCV_EXTENSIONS_CTOR(recordable_data) {  // NOLINT
     SCV_FIELD(address);
     SCV_FIELD(command);
-    SCV_FIELD(data);
+    SCV_FIELD(data_ptr);
     SCV_FIELD(data_length);
+    SCV_FIELD(data_thumbnail);
     SCV_FIELD(response_status);
     SCV_FIELD(dmi_allowed);
     SCV_FIELD(byte_enable);

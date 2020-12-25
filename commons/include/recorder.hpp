@@ -4,7 +4,7 @@
 
 #include <array>
 
-#include "recordable_payload.hpp"
+#include "recordable_data.hpp"
 #include "recording_extension.hpp"
 
 enum tx_relationship {
@@ -13,7 +13,9 @@ enum tx_relationship {
 };
 
 static constexpr std::array<std::string_view, 2> tx_relationship_literal = {{"PARENT/CHILD", "PRED/SUCC"}};
-static inline constexpr const char* relationship_name(tx_relationship rel) { return (tx_relationship_literal[rel].data()); }
+static inline constexpr const char* relationship_name(tx_relationship rel) {
+  return (tx_relationship_literal[rel].data());
+}
 
 template <typename TYPES = tlm::tlm_base_protocol_types>
 class recorder : public virtual tlm::tlm_fw_transport_if<TYPES>,
@@ -73,6 +75,13 @@ tlm::tlm_sync_enum recorder<TYPES>::nb_transport_fw(typename TYPES::tlm_payload_
   }
 
   scv_tr_handle h = nb_fw_transactor[payload.get_command()]->begin_transaction(std::string{phase.get_name()});
+  //  if (timed_enabled.value) {
+  //    auto* req = mm::get().allocate();
+  //    req->acquire();
+  //    (*req) = payload;
+  //    req->parent = h;
+  //    nb_timed_peq.notify(*req, phase, delay);
+  //  }
   auto prev = payload.template get_extension<recording_extension>();
   if (prev == nullptr) {  // we are the first recording this transaction
     prev = new recording_extension(h, this);
@@ -89,29 +98,8 @@ tlm::tlm_sync_enum recorder<TYPES>::nb_transport_fw(typename TYPES::tlm_payload_
   }
   h.record_attribute("delay", t.to_string());
 
-  //  if (timed_enabled.value) {
-  //    auto* req = mm::get().allocate();
-  //    req->acquire();
-  //    (*req) = trans;
-  //    req->parent = h;
-  //    nb_timed_peq.notify(*req, phase, delay);
-  //  }
-
   tlm::tlm_sync_enum status = fw_port->nb_transport_fw(payload, phase, t);
-
-  recordable_payload tgd(payload);
-  tgd.response_status = payload.get_response_status();
-  h.record_attribute("trans.uid", reinterpret_cast<uintptr_t>(&payload));
-  h.record_attribute("trans", tgd);
-  if (payload.get_data_length() < 8) {
-    uint64_t buf = 0;
-    // FIXME: this is endianess dependent
-    for (size_t i = 0; i < payload.get_data_length(); i++) {
-      buf += (*payload.get_data_ptr()) << i * 8;
-    }
-    h.record_attribute("trans.data_value", buf);
-  }
-
+  h.record_attribute("trans", recordable_data{payload});
   h.record_attribute("tlm_phase[return_path]", std::string{phase.get_name()});
   h.record_attribute("delay[return_path]", t.to_string());
   // get the extension and free the memory if it was mine
