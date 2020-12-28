@@ -7,9 +7,13 @@
 
 class mod : public sc_core::sc_module {
  public:
-  mod(const sc_module_name& nm) : sc_module(nm) {}
+  mod(const sc_module_name& nm) : sc_module(nm) {
+    o.register_nb_transport_bw(
+        [](outbound<recordable_initiator_socket<>>::transaction_type&,
+           outbound<recordable_initiator_socket<>>::phase_type&,
+           sc_core::sc_time&) -> tlm::tlm_sync_enum { return tlm::tlm_sync_enum::TLM_ACCEPTED; });
+  }
   outbound<recordable_initiator_socket<>> o;
-  //  tlm_utils::simple_initiator_socket<mod> o;
 };
 
 TEST(recordable_test, should_able_to_set_specific_bit) {
@@ -18,7 +22,13 @@ TEST(recordable_test, should_able_to_set_specific_bit) {
   scv_tr_db db("my_db.txlog");
   scv_tr_db::set_default_db(&db);
   bool received = false;
-  fake_receiver rcv{"rcv", [&received](auto& payload, auto& time) -> void { received = true; }};
+  fake_receiver<> rcv{"rcv",
+                      [&received](fake_receiver<>::bw_interface_type* bw, auto& payload, tlm::tlm_phase& phase,
+                                  auto& time) -> tlm::tlm_sync_enum {
+                        received = true;
+                        bw->nb_transport_bw(payload, phase, time);
+                        return tlm::tlm_sync_enum::TLM_ACCEPTED;
+                      }};
   mod m{"xxx"};
   m.o.bind(rcv.inputs);
   tlm::tlm_generic_payload payload;

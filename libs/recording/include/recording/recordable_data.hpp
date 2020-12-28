@@ -15,9 +15,9 @@ class recordable_data {
         gp_option(payload.get_gp_option()),
         uid(reinterpret_cast<uintptr_t>(&payload)) {
     // FIXME: this is endianess dependent
-    for (size_t i = 0; i < data_length; i++) {
-      data_thumbnail += (*data_ptr) << i * 8;
-    }
+//    for (size_t i = 0; i < data_length; i++) {
+//      data_thumbnail += (*data_ptr) << i * 8;
+//    }
   }
 
   sc_dt::uint64 address{0};

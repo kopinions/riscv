@@ -6,4 +6,6 @@
 #include "recording/recordable_initiator_socket.hpp"
 #include "recording/recordable_target_socket.hpp"
 #include "recording/recorder.hpp"
+#include "recording/timed.hpp"
+#include "recording/relationship.hpp"
 #include "recording/recording_extension.hpp"

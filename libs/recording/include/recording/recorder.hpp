@@ -1,64 +1,32 @@
 #pragma once
 #include <scv.h>
 #include <tlm.h>
+#include <tlm_utils/peq_with_cb_and_phase.h>
 
 #include <array>
 
 #include "recording/payload_memory_manager.hpp"
 #include "recording/recordable_data.hpp"
 #include "recording/recording_extension.hpp"
-
-enum tx_relationship {
-  PARENT_CHILD = 0,     /*!< indicates parent child relationship */
-  PREDECESSOR_SUCCESSOR /*!< indicates predecessor successor relationship */
-};
-
-static constexpr std::array<std::string_view, 2> tx_relationship_literal = {{"PARENT/CHILD", "PRED/SUCC"}};
-static inline constexpr const char* relationship_name(tx_relationship rel) {
-  return (tx_relationship_literal[rel].data());
-}
-
-template <typename TYPES = tlm::tlm_base_protocol_types>
-class tlm_recordable_payload : public TYPES::tlm_payload_type {
- public:
-  scv_tr_handle parent;
-  uint64 id;
-  tlm_recordable_payload& operator=(const typename TYPES::tlm_payload_type& x) {
-    id = reinterpret_cast<uintptr_t>(&x);
-    this->set_command(x.get_command());
-    this->set_address(x.get_address());
-    this->set_data_ptr(nullptr);
-    this->set_data_length(x.get_data_length());
-    this->set_response_status(x.get_response_status());
-    this->set_byte_enable_ptr(nullptr);
-    this->set_byte_enable_length(x.get_byte_enable_length());
-    this->set_streaming_width(x.get_streaming_width());
-    return (*this);
-  }
-
-  explicit tlm_recordable_payload(tlm::tlm_mm_interface* mm) : TYPES::tlm_payload_type(mm), parent(), id(0) {}
-};
-
-template <typename TYPES = tlm::tlm_base_protocol_types>
-struct tlm_recording_types {
-  using tlm_payload_type = tlm_recordable_payload<TYPES>;
-  using tlm_phase_type = typename TYPES::tlm_phase_type;
-};
+#include "recording/relationship.hpp"
+#include "recording/timed.hpp"
+#include "recording/tlm_recordable_payload.hpp"
 
 template <typename TYPES = tlm::tlm_base_protocol_types>
 class recorder : public virtual tlm::tlm_fw_transport_if<TYPES>,
                  public virtual tlm::tlm_bw_transport_if<TYPES>,
                  public virtual sc_core::sc_object {
  public:
-  using recording_types = tlm_recording_types<TYPES>;
-  using mm = payload_memory_manager<recording_types>;
-  using recording_payload_type = typename recording_types::tlm_payload_type;
-  recorder(sc_core::sc_port_b<tlm::tlm_fw_transport_if<TYPES>>& fw_port,
-           sc_core::sc_port_b<tlm::tlm_bw_transport_if<TYPES>>& bw_port, bool recording_enabled = true,
+  using recordable_protocol_types = tlm_recordable_protocol_types<TYPES>;
+  using mm = payload_memory_manager<recordable_protocol_types>;
+  using recordable_payload_type = typename recordable_protocol_types::tlm_payload_type;
+  using port_type = sc_core::sc_port_b<tlm::tlm_fw_transport_if<TYPES>>;
+  using export_type = sc_core::sc_port_b<tlm::tlm_bw_transport_if<TYPES>>;
+
+  recorder(port_type& fw_port, export_type& bw_port, bool recording_enabled = true,
            scv_tr_db* tr_db = scv_tr_db::get_default_db());
 
-  recorder(const char* name, sc_core::sc_port_b<tlm::tlm_fw_transport_if<TYPES>>& fw_port,
-           sc_core::sc_port_b<tlm::tlm_bw_transport_if<TYPES>>& bw_port, bool recording_enabled = true,
+  recorder(const char* name, port_type& fw_port, export_type& bw_port, bool recording_enabled = true,
            scv_tr_db* tr_db = scv_tr_db::get_default_db());
 
   tlm::tlm_sync_enum nb_transport_bw(typename TYPES::tlm_payload_type&, typename TYPES::tlm_phase_type&,
@@ -78,8 +46,8 @@ class recorder : public virtual tlm::tlm_fw_transport_if<TYPES>,
   bool enabled() const;
 
  private:
-  sc_core::sc_port_b<tlm::tlm_fw_transport_if<TYPES>>& fw_port;
-  sc_core::sc_port_b<tlm::tlm_bw_transport_if<TYPES>>& bw_port;
+  port_type& fw_port;
+  export_type& bw_port;
   sc_core::sc_attribute<bool> tracing_enabled;
   sc_core::sc_attribute<bool> timed_enabled;
 
@@ -87,7 +55,7 @@ class recorder : public virtual tlm::tlm_fw_transport_if<TYPES>,
   std::vector<scv_tr_generator<std::string, tlm::tlm_sync_enum>*> nb_fw_transactor;
   //! transaction generator handle for backward non-blocking transactions
   std::vector<scv_tr_generator<std::string, tlm::tlm_sync_enum>*> nb_bw_transactor;
-
+  timed<TYPES> m_nb_timed;
   std::string m_base_name;
   scv_tr_db* m_db;
 };

@@ -1,4 +1,5 @@
 build
+*.txlog
 3rdparty/uvm
 3rdparty/sysc
 3rdparty/scv
