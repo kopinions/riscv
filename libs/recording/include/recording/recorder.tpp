@@ -38,9 +38,26 @@ recorder<TYPES>::recorder(sc_port_b<tlm::tlm_fw_transport_if<TYPES>>& fw_port,
     : recorder{sc_core::sc_gen_unique_name("recorder"), fw_port, bw_port, recording_enabled, tr_db} {}
 
 template <typename TYPES>
-tlm::tlm_sync_enum recorder<TYPES>::nb_transport_bw(typename TYPES::tlm_payload_type& trans,
+tlm::tlm_sync_enum recorder<TYPES>::nb_transport_bw(typename TYPES::tlm_payload_type& payload,
                                                     typename TYPES::tlm_phase_type& phase, sc_core::sc_time& t) {
-  return tlm::TLM_UPDATED;
+  if (!enabled()) {
+    return bw_port->nb_transport_bw(payload, phase, t);
+  }
+
+  auto h = nb_bw_transactor[payload.get_command()]->begin_transaction(std::string{phase.get_name()});
+  auto prev = payload.template get_extension<recording_extension>();
+  if (prev) {  // we are the first recording this transaction
+    h.add_relation(relationship_name(PREDECESSOR_SUCCESSOR), prev->tx());
+    prev->tx(h);
+  }
+  auto status = bw_port->nb_transport_bw(payload, phase, t);
+  h.record_attribute("delay", t.to_string());
+  recordable_data tgd(payload);
+  h.record_attribute("trans", tgd);
+  h.record_attribute("tlm_phase[return_path]", std::string{phase.get_name()});
+  h.record_attribute("delay[return_path]", t.to_string());
+  nb_bw_transactor[payload.get_command()]->end_transaction(h, status);
+  return status;
 }
 
 template <typename TYPES>
