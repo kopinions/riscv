@@ -14,55 +14,13 @@ typedef std::map<tlm::tlm_generic_payload*, stype> waiting_bw_path_map;
 waiting_bw_path_map m_bw_txs;
 tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_send_end_rsp_PEQ{"end_peq"};
 sc_core::sc_event m_enable_next_request_event;
-class mod : public sc_core::sc_module {
+class mod : public sc_core::sc_module, public sponsor<tlm::tlm_base_protocol_types> {
   SC_HAS_PROCESS(mod);
 
  public:
   mod(const sc_module_name& nm) : sc_module(nm) {
-    o.register_nb_transport_bw([this](outbound<recordable_initiator_socket<>>::transaction_type& tx,
-                                      outbound<recordable_initiator_socket<>>::phase_type& p,
-                                      sc_core::sc_time&) -> tlm::tlm_sync_enum {
-      tlm::tlm_sync_enum status = tlm::TLM_ACCEPTED;
-      if (auto stored_tx = m_bw_txs.find(&tx); stored_tx != m_bw_txs.end()) {
-        switch (p) {
-          case tlm::END_REQ: {
-            m_enable_next_request_event.notify(SC_ZERO_TIME);
-            stored_tx->second = tlm::END_REQ;
-            status = tlm::TLM_ACCEPTED;
-            break;
-          }
-          case tlm::BEGIN_RESP: {
-            m_send_end_rsp_PEQ.notify(tx, SC_ZERO_TIME);
-            std::visit(
-                [](auto t) {
-                  if (std::is_same_v<decltype(t), tlm::tlm_sync_enum>) {
-                    // 3 phase transaction, BEGIN_RESP without END_REQ
-                    m_enable_next_request_event.notify(SC_ZERO_TIME);
-                  }
-                },
-                stored_tx->second);
+//    o.register_nb_transport_bw();
 
-            m_bw_txs.erase(&tx);
-            status = tlm::TLM_ACCEPTED;
-            break;
-          }
-          case tlm::BEGIN_REQ:
-          case tlm::END_RESP: {
-            std::cerr << "error ";
-            break;
-          }
-          default: {
-            std::cerr << "Unknown phase on the backward path";
-            break;
-          }
-        }
-      } else {
-        std::cerr << "error no transaction found";
-        status = tlm::TLM_ACCEPTED;
-      }
-
-      return status;
-    });
 
     SC_METHOD(end_res);
     sensitive << m_send_end_rsp_PEQ.get_event();
@@ -104,6 +62,10 @@ class mod : public sc_core::sc_module {
     }
   }
 
+  void fulfilled(tlm_payload_type& type) override {
+
+  }
+
  private:
   void end_res(){
 
@@ -131,8 +93,8 @@ TEST(recordable_test, should_able_to_set_specific_bit) {
   sc_core::sc_time delay = sc_core::sc_time(0, sc_core::SC_NS);
   tlm::tlm_phase phase = tlm::BEGIN_REQ;
 
-  m.nb_transport_fw(payload, phase, delay);
-
+//  m.nb_transport_fw(payload, phase, delay);
+  m.o.transport(payload);
 
   sc_core::sc_start();
   EXPECT_TRUE(received);

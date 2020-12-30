@@ -4,6 +4,19 @@
 #include <sstream>
 #include <tlm>
 
+#include "peers.hpp"
+
+template <typename TYPES = tlm::tlm_base_protocol_types>
+class sponsor_holder {
+ public:
+  void from(sponsor<TYPES>* sponsor) { m_sponsor = sponsor; };
+
+ private:
+  template <typename, typename>
+  friend class outbound;
+  sponsor<TYPES>* m_sponsor;
+};
+
 template <typename RECORDABLE, typename TYPES = tlm::tlm_base_protocol_types>
 class outbound : public RECORDABLE {
  public:
@@ -18,17 +31,96 @@ class outbound : public RECORDABLE {
 
   explicit outbound(const sc_core::sc_module_name& name) : RECORDABLE(name), bw_if(this->name()) {
     this->m_export.bind(bw_if);
+    bw_if.set_transport_function([this](transaction_type& tx, phase_type& p, sc_core::sc_time&) -> tlm::tlm_sync_enum {
+      tlm::tlm_sync_enum status = tlm::TLM_ACCEPTED;
+      if (auto stored_tx = m_bw_txs.find(&tx); stored_tx != m_bw_txs.end()) {
+        switch (p) {
+          case tlm::END_REQ: {
+            m_enable_next_request_event.notify(SC_ZERO_TIME);
+            stored_tx->second = tlm::END_REQ;
+            status = tlm::TLM_ACCEPTED;
+            break;
+          }
+          case tlm::BEGIN_RESP: {
+            m_send_end_rsp_PEQ.notify(tx, SC_ZERO_TIME);
+            std::visit(
+                [this](auto t) {
+                  if (std::is_same_v<decltype(t), tlm::tlm_sync_enum>) {
+                    // 3 phase transaction, BEGIN_RESP without END_REQ
+                    m_enable_next_request_event.notify(SC_ZERO_TIME);
+                  }
+                },
+                stored_tx->second);
+
+            m_bw_txs.erase(&tx);
+            status = tlm::TLM_ACCEPTED;
+            break;
+          }
+          case tlm::BEGIN_REQ:
+          case tlm::END_RESP: {
+            std::cerr << "error ";
+            break;
+          }
+          default: {
+            std::cerr << "Unknown phase on the backward path";
+            break;
+          }
+        }
+      } else {
+        std::cerr << "error no transaction found";
+        status = tlm::TLM_ACCEPTED;
+      }
+
+      return status;
+    });
   }
 
-  void register_nb_transport_bw(std::function<sync_enum_type(transaction_type&, phase_type&, sc_core::sc_time&)> cb) {
-    bw_if.set_transport_function(cb);
-  }
+  sponsor_holder<TYPES> transport(transaction_type& payload) {
+    const sponsor_holder<TYPES>& holder = sponsor_holder<TYPES>{};
+    phase_type phase = tlm::BEGIN_REQ;
+    sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
+    auto status = this->get_base_port()->nb_transport_fw(payload, phase, delay);
+    sc_core::sc_time m_end_rsp_delay = sc_core::sc_time(10, sc_core::SC_NS);
 
-  void register_invalidate_direct_mem_ptr(std::function<void(sc_dt::uint64, sc_dt::uint64)> cb) {
-    bw_if.set_invalidate_direct_mem_function(cb);
-  }
+    switch (status) {
+      case tlm::TLM_COMPLETED: {
+        wait(delay + m_end_rsp_delay);
+        EXPECT_THAT(std::string(reinterpret_cast<char*>(payload.get_data_ptr())), testing::Eq("done"));
+        break;
+      }
+      case tlm::TLM_UPDATED: {
+        if (phase == tlm::END_REQ) {
+          auto p = std::make_pair(&payload, tlm::END_REQ);
+          m_bw_txs.insert(p);
+          wait(delay);  // wait annotated time
+        } else if (phase == tlm::BEGIN_RESP) {
+          wait(delay);
+          m_send_end_rsp_PEQ.notify(payload, delay);
+        } else {
+          std::cerr << "error status";
+        }
+        break;
+      }
+      case tlm::TLM_ACCEPTED: {
+        auto p = std::make_pair(&payload, tlm::TLM_ACCEPTED);
+        m_bw_txs.insert(p);
+        // TODO refactor needed to wait the event, change nb_transport_bw to peq
+        //        wait(m_enable_next_request_event);
+      }
+    }
+    if (holder.m_sponsor) {
+      holder.m_sponsor->fulfilled(payload);
+    }
+    return holder;
+  };
 
  private:
+  using stype = std::variant<tlm::tlm_sync_enum, tlm::tlm_phase_enum>;
+
+  typedef std::map<tlm::tlm_generic_payload*, stype> waiting_bw_path_map;
+  waiting_bw_path_map m_bw_txs;
+  tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_send_end_rsp_PEQ{"end_peq"};
+  sc_core::sc_event m_enable_next_request_event;
   class bw_transport_if : public tlm::tlm_bw_transport_if<TYPES> {
    public:
     using transport_fct = std::function<sync_enum_type(transaction_type&, phase_type&, sc_core::sc_time&)>;
