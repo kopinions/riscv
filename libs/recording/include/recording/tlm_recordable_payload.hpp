@@ -21,6 +21,8 @@ class tlm_recordable_payload : public TYPES::tlm_payload_type {
   }
 
   explicit tlm_recordable_payload(tlm::tlm_mm_interface* mm) : TYPES::tlm_payload_type(mm), parent(), id(0) {}
+
+  ~tlm_recordable_payload() = default;
 };
 
 template <typename TYPES = tlm::tlm_base_protocol_types>

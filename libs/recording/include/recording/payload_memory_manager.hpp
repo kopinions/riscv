@@ -37,7 +37,6 @@ class payload_memory_manager : public tlm::tlm_mm_interface {
 
     payload->set_data_ptr(nullptr);
     payload->reset();
-    payload->~tlm_generic_payload();
 
     // Add payload to recycle pool
     m_pool.emplace_back((payload_type *)payload);
