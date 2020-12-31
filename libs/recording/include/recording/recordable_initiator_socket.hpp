@@ -1,6 +1,6 @@
 #pragma once
-#include "recording/recorder.hpp"
 #include "recording/recordable.hpp"
+#include "recording/recorder.hpp"
 
 template <unsigned int BUSWIDTH = 32, typename TYPES = tlm::tlm_base_protocol_types, int N = 1,
           sc_core::sc_port_policy POL = sc_core::SC_ONE_OR_MORE_BOUND>
@@ -17,7 +17,7 @@ class recordable_initiator_socket : public recordable, public tlm::tlm_initiator
 
   recordable_initiator_socket();
   recordable_initiator_socket(const char*);
-  [[nodiscard]] bool enabled() const override ;
+  [[nodiscard]] bool enabled() const override;
   void bind(base_target_socket_type& tgt) override;
   void bind(base_type& bt) override;
   void bind(bw_interface_type& ifs) override;
@@ -88,7 +88,7 @@ bool recordable_initiator_socket<BUSWIDTH, TYPES, N, POL>::enabled() const {
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
 recordable_initiator_socket<BUSWIDTH, TYPES, N, POL>::recordable_initiator_socket()
-    : tlm::tlm_initiator_socket<BUSWIDTH, TYPES, N, POL>{sc_core::sc_gen_unique_name("outbound_initiator")},
+    : tlm::tlm_initiator_socket<BUSWIDTH, TYPES, N, POL>{sc_core::sc_gen_unique_name("recordable_initiator")},
       m_fw(sc_core::sc_gen_unique_name("fw")),
       m_bw(sc_core::sc_gen_unique_name("bw")),
       m_recorder{sc_core::sc_gen_unique_name("recorder"), m_fw, m_bw} {}

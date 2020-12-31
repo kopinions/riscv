@@ -6,17 +6,6 @@
 
 #include "peers.hpp"
 
-template <typename TYPES = tlm::tlm_base_protocol_types>
-class sponsor_holder {
- public:
-  void from(sponsor<TYPES>* sponsor) { m_sponsor = sponsor; };
-
- private:
-  template <typename, typename>
-  friend class outbound;
-  sponsor<TYPES>* m_sponsor;
-};
-
 template <typename RECORDABLE, typename TYPES = tlm::tlm_base_protocol_types>
 class outbound : public RECORDABLE {
  public:

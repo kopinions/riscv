@@ -79,9 +79,6 @@ class fake_receiver : public sc_core::sc_module {
     }
   }
 
-  tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_end_request_PEQ;
-  tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_response_PEQ;
-
   tlm::tlm_sync_enum nb_transport_fw(tlm::tlm_generic_payload& pld, tlm::tlm_phase& phase, sc_time& delay) {
     tlm::tlm_sync_enum status;
     switch (phase) {
@@ -105,9 +102,12 @@ class fake_receiver : public sc_core::sc_module {
     return m_hooked((dynamic_cast<bw_interface_type*>(inputs.get_base_port().get_interface())), pld, phase, delay);
   }
 
+  tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_end_request_PEQ;
+  tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_response_PEQ;
+  const sc_time m_accept_delay;
+  sc_event m_end_resp_rcvd_event;
   std::function<tlm::tlm_sync_enum(bw_interface_type*, tlm::tlm_generic_payload&, tlm::tlm_phase& phase,
                                    sc_core::sc_time&)>
       m_hooked;
-  const sc_time m_accept_delay;
-  sc_event m_end_resp_rcvd_event;
+
 };
