@@ -28,6 +28,11 @@ class recordable_target_socket : public recordable, public tlm::tlm_target_socke
  private:
   sc_core::sc_port<fw_interface_type> m_fw_port;
   recorder<TYPES> m_recorder;
+  static std::string gen_name(const char* first, const char* second) {
+    std::stringstream ss;
+    ss << first << "_" << second;
+    return ss.str();
+  }
 };
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
@@ -79,11 +84,14 @@ void recordable_target_socket<BUSWIDTH, TYPES, N, POL>::bind(fw_interface_type& 
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
 recordable_target_socket<BUSWIDTH, TYPES, N, POL>::recordable_target_socket(const char* name)
-    : m_recorder{"tx", m_fw_port, this->get_base_port()} {}
+    : tlm::tlm_target_socket<BUSWIDTH, TYPES, N, POL>(name),
+      m_fw_port(sc_core::sc_gen_unique_name("target_fw")),
+      m_recorder{sc_core::sc_gen_unique_name("tx"), m_fw_port, this->get_base_port()} {
+}
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
 recordable_target_socket<BUSWIDTH, TYPES, N, POL>::recordable_target_socket()
-    : recordable_target_socket("recordable_target") {}
+    : recordable_target_socket(sc_core::sc_gen_unique_name("recordable_target")) {}
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
 typename recordable_target_socket<BUSWIDTH, TYPES, N, POL>::bw_interface_type*

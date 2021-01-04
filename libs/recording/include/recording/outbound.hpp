@@ -16,7 +16,7 @@ class outbound : public RECORDABLE {
   using bw_interface_type = tlm::tlm_bw_transport_if<TYPES>;
 
  public:
-  outbound() : outbound(sc_core::sc_gen_unique_name("initiator_mixin_socket")) {}
+  outbound() : outbound(sc_core::sc_gen_unique_name("outbound")) {}
 
   explicit outbound(const sc_core::sc_module_name& name) : RECORDABLE(name), bw_if(this->name()) {
     this->m_export.bind(bw_if);
@@ -64,8 +64,10 @@ class outbound : public RECORDABLE {
     });
   }
 
-  sponsor_holder<TYPES> transport(transaction_type& payload) {
-    const sponsor_holder<TYPES>& holder = sponsor_holder<TYPES>{};
+  void from(sponsor<TYPES>* s) { m_sponsor = s; }
+
+  void transport(transaction_type& payload) {
+
     phase_type phase = tlm::BEGIN_REQ;
     sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
     auto status = this->get_base_port()->nb_transport_fw(payload, phase, delay);
@@ -74,7 +76,7 @@ class outbound : public RECORDABLE {
     switch (status) {
       case tlm::TLM_COMPLETED: {
         wait(delay + m_end_rsp_delay);
-        EXPECT_THAT(std::string(reinterpret_cast<char*>(payload.get_data_ptr())), testing::Eq("done"));
+        m_sponsor->fulfilled(payload);
         break;
       }
       case tlm::TLM_UPDATED: {
@@ -97,10 +99,6 @@ class outbound : public RECORDABLE {
         //        wait(m_enable_next_request_event);
       }
     }
-    if (holder.m_sponsor) {
-      holder.m_sponsor->fulfilled(payload);
-    }
-    return holder;
   };
 
  private:
@@ -110,6 +108,7 @@ class outbound : public RECORDABLE {
   waiting_bw_path_map m_bw_txs;
   tlm_utils::peq_with_get<tlm::tlm_generic_payload> m_send_end_rsp_PEQ{"end_peq"};
   sc_core::sc_event m_enable_next_request_event;
+  sponsor<TYPES>* m_sponsor;
   class bw_transport_if : public tlm::tlm_bw_transport_if<TYPES> {
    public:
     using transport_fct = std::function<sync_enum_type(transaction_type&, phase_type&, sc_core::sc_time&)>;

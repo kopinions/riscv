@@ -28,6 +28,11 @@ class recordable_initiator_socket : public recordable, public tlm::tlm_initiator
   sc_core::sc_port<fw_interface_type, N, POL> m_fw;
   sc_core::sc_port<bw_interface_type, N, POL> m_bw;
   recorder<TYPES> m_recorder;
+  static std::string gen_name(const char* first, const char* second) {
+    std::stringstream ss;
+    ss << first << "_" << second;
+    return ss.str();
+  }
 };
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
@@ -48,9 +53,11 @@ void recordable_initiator_socket<BUSWIDTH, TYPES, N, POL>::bind(base_target_sock
   // this -> recorder -> target
 
   // bind m_recorder as FW interface to this.port
-  this->get_base_port()(m_recorder);
+  sc_port_b<fw_interface_type>& b = this->get_base_port();
+  b(m_recorder);
   // bind target interface to recorder.port
-  m_fw(tgt.get_base_interface());
+  fw_interface_type& anIf = tgt.get_base_interface();
+  m_fw(anIf);
 
   // bind m_recorder as BW interface to target.port
   tgt.get_base_port()(m_recorder);
@@ -91,19 +98,11 @@ recordable_initiator_socket<BUSWIDTH, TYPES, N, POL>::recordable_initiator_socke
     : tlm::tlm_initiator_socket<BUSWIDTH, TYPES, N, POL>{sc_core::sc_gen_unique_name("recordable_initiator")},
       m_fw(sc_core::sc_gen_unique_name("fw")),
       m_bw(sc_core::sc_gen_unique_name("bw")),
-      m_recorder{sc_core::sc_gen_unique_name("recorder"), m_fw, m_bw} {}
-
-#include <sstream>
-static inline std::string gen_name(const char* first, const char* second) {
-  std::stringstream ss;
-  ss << first << "_" << second;
-
-  return ss.str();
-}
+      m_recorder{sc_core::sc_gen_unique_name(this->name()), m_fw, m_bw} {}
 
 template <unsigned int BUSWIDTH, typename TYPES, int N, sc_core::sc_port_policy POL>
 recordable_initiator_socket<BUSWIDTH, TYPES, N, POL>::recordable_initiator_socket(const char* name)
     : tlm::tlm_initiator_socket<BUSWIDTH, TYPES, N, POL>{name},
       m_fw(sc_core::sc_gen_unique_name("fw")),
       m_bw(sc_core::sc_gen_unique_name("bw")),
-      m_recorder{sc_core::sc_gen_unique_name("recorder"), m_fw, m_bw} {}
+      m_recorder{sc_core::sc_gen_unique_name("tx"), m_fw, m_bw} {}

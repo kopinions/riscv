@@ -26,14 +26,3 @@ class sponsor_holder {
   friend class outbound;
   sponsor<TYPES>* m_sponsor;
 };
-
-template <typename TYPES = tlm::tlm_base_protocol_types>
-class sponsee_holder {
- public:
-  void from(sponsee<TYPES>* sponsee) { m_sponsee = sponsee; };
-
- private:
-  template <typename, typename>
-  friend class inbound;
-  sponsee<TYPES>* m_sponsee;
-};

@@ -1,10 +1,13 @@
 
 template <typename RECORDABLE, typename TYPES>
 inbound<RECORDABLE, TYPES>::inbound(const sc_module_name& name)
-    : RECORDABLE(name),
-      m_requests_to_end("end_request"),
-      m_responses_to_begin("begin_response"),
+    : sc_core::sc_module(name),
+      RECORDABLE(name),
+      m_requests_to_end(sc_core::sc_gen_unique_name("end_request")),
+      m_responses_to_begin(sc_core::sc_gen_unique_name("begin_response")),
+      m_fw_process(this),
       m_accept_delay(sc_time(10, SC_NS)) {
+  RECORDABLE::bind(m_fw_process);
   SC_METHOD(end_request_method);
   sensitive << m_requests_to_end.get_event();
   dont_initialize();
@@ -16,8 +19,8 @@ inbound<RECORDABLE, TYPES>::inbound(const sc_module_name& name)
 
 template <typename RECORDABLE, typename TYPES>
 inbound<RECORDABLE, TYPES>::inbound() : inbound(sc_core::sc_gen_unique_name("inbound")) {}
-template <typename RECORDABLE, typename TYPES>
 
+template <typename RECORDABLE, typename TYPES>
 void inbound<RECORDABLE, TYPES>::sponsed(const sponsee<TYPES>* e) {
   m_sponsee = const_cast<sponsee<TYPES>*>(e);
 }
@@ -43,7 +46,7 @@ void inbound<RECORDABLE, TYPES>::end_request_method() {
       }
     }
   }
-}
+};
 template <typename RECORDABLE, typename TYPES>
 void inbound<RECORDABLE, TYPES>::begin_response_method() {
   for (auto* ptr = m_responses_to_begin.get_next_transaction(); ptr;
@@ -69,4 +72,4 @@ void inbound<RECORDABLE, TYPES>::begin_response_method() {
       }
     }
   }
-}
+};
