@@ -7,8 +7,9 @@
 #include "peers.hpp"
 
 template <typename RECORDABLE, typename TYPES = tlm::tlm_base_protocol_types>
-class outbound : public RECORDABLE {
+class outbound : public RECORDABLE, public sc_core::sc_module {
  public:
+  SC_HAS_PROCESS(outbound);
   using transaction_type = typename TYPES::tlm_payload_type;
   using phase_type = typename TYPES::tlm_phase_type;
   using sync_enum_type = tlm::tlm_sync_enum;
@@ -18,9 +19,44 @@ class outbound : public RECORDABLE {
  public:
   outbound() : outbound(sc_core::sc_gen_unique_name("outbound")) {}
 
-  explicit outbound(const sc_core::sc_module_name& name) : RECORDABLE(name), bw_if(this->name(), this) {
+  explicit outbound(const sc_core::sc_module_name& name)
+      : sc_core::sc_module(name), RECORDABLE(name), bw_if(sc_core::sc_module::name(), this) {
     this->m_export.bind(bw_if);
+    SC_METHOD(send_end_rsp_method);
+    sensitive << m_send_end_rsp_PEQ.get_event();
+    dont_initialize();
   }
+
+  void send_end_rsp_method() {
+    for (auto* ptr = m_send_end_rsp_PEQ.get_next_transaction(); ptr != nullptr;
+         ptr = m_send_end_rsp_PEQ.get_next_transaction()) {
+      tlm::tlm_phase phase = tlm::END_RESP;  // set the appropriate phase
+      sc_time delay = SC_ZERO_TIME;
+
+      // call begin response and then decode return status
+      tlm::tlm_sync_enum return_value = this->get_base_port()->nb_transport_fw(*ptr, phase, delay);
+
+      switch (return_value) {
+        case tlm::TLM_COMPLETED: {
+          m_sponsor->fulfilled(*ptr);
+          break;
+        }
+
+        case tlm::TLM_ACCEPTED:
+        case tlm::TLM_UPDATED: {
+          std::cerr << "error updated" << std::endl;
+          break;
+        }
+
+        default: {
+          std::cerr << "error status" << std::endl;
+          break;
+        }
+      }  // end switch
+    }    // end while
+
+    return;
+  };
 
   void from(sponsor<TYPES>* s) { m_sponsor = s; }
 
@@ -97,7 +133,7 @@ class outbound : public RECORDABLE {
                 stored_tx->second);
 
             m_outbound->m_bw_txs.erase(&tx);
-            status = tlm::TLM_ACCEPTED;
+            status = tlm::TLM_COMPLETED;
             break;
           }
           case tlm::BEGIN_REQ:

@@ -24,6 +24,7 @@ class inbound : public RECORDABLE, public sc_core::sc_module {
     fw_process(inbound<RECORDABLE, TYPES>* i) : m_inbound{i} {}
     tlm::tlm_sync_enum nb_transport_fw(typename TYPES::tlm_payload_type& trans, typename TYPES::tlm_phase_type& phase,
                                        sc_time& t) override {
+      auto status = tlm::TLM_ACCEPTED;
       switch (phase) {
         case tlm::BEGIN_REQ: {
           m_inbound->m_requests_to_end.notify(trans, t);
@@ -36,12 +37,13 @@ class inbound : public RECORDABLE, public sc_core::sc_module {
         }
         case tlm::END_RESP: {
           m_inbound->m_end_resp_rcvd_event.notify();
+          status = tlm::TLM_COMPLETED;
           break;
         }
         default:
           break;
       }
-      return tlm::TLM_ACCEPTED;
+      return status;
     }
     void b_transport(typename TYPES::tlm_payload_type& trans, sc_time& t) override {}
     bool get_direct_mem_ptr(typename TYPES::tlm_payload_type& trans, tlm::tlm_dmi& dmi_data) override { return false; }
