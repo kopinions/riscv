@@ -28,9 +28,15 @@ class receiver : public sc_core::sc_module, public sponsee<tlm::tlm_base_protoco
  public:
   receiver(const sc_module_name& nm) : sc_module(nm) { i.sponsed(this); }
 
-  void fulfill(tlm_payload_type& type) override { type.set_data_ptr((unsigned char*)"req for data"); }
+  void fulfill(tlm_payload_type& type) override {
+    m_request = std::string{reinterpret_cast<char*>(type.get_data_ptr())};
+    type.set_data_ptr((unsigned char*)"response payload"); }
+
+  std::string request () { return m_request; }
  public:
   inbound<recordable_target_socket<>> i;
+ private:
+  std::string m_request;
 };
 
 TEST(recordable_test, should_able_to_set_specific_bit) {
@@ -43,14 +49,15 @@ TEST(recordable_test, should_able_to_set_specific_bit) {
   sen.o.bind(rcv.i);
 
   tlm::tlm_generic_payload payload;
-  std::string a = "req for data";
+  std::string a = "request payload";
   payload.set_data_ptr((unsigned char*)a.c_str());
   payload.set_data_length(a.length());
 
   sen.o.transport(payload);
 
   sc_core::sc_start();
-//  EXPECT_THAT(sen.result(), testing::Eq("test for data"));
+  EXPECT_THAT(sen.result(), testing::Eq("response payload"));
+  EXPECT_THAT(rcv.request(), testing::Eq("request payload"));
 }
 
 int sc_main(int argc, char** argv) {
