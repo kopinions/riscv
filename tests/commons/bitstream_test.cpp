@@ -1,4 +1,4 @@
-#include "bitstream.hpp"
+#include "../../include/commons/bitstream.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

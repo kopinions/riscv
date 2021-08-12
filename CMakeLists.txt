@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(riscv CXX)
+<<<<<<< HEAD
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS, ON)
@@ -106,4 +107,24 @@ macro(gtest TESTNAME)
             PROPERTIES FOLDER "tests")
 endmacro()
 include(CTest)
+=======
+set(CMAKE_EXPORT_COMPILE_COMMANDS, ON)
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_LIST_DIR}/cmake")
+set(CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH}" "${CMAKE_CURRENT_LIST_DIR}/3rdparty/lib")
+
+include_directories(bridges)
+include_directories(tlm/include)
+include_directories(uvm/sc/include)
+include_directories(include)
+
+find_package(SystemC
+        COMPONENTS UVM)
+if (NOT SYSTEMC_FOUND)
+    include(FetchSystemC)
+    include(FetchSystemCUVM)
+endif ()
+
+add_subdirectory(uvm)
+add_subdirectory(rtl)
+>>>>>>> 00fbf84 (refactor: change the structure)
 add_subdirectory(tests)

@@ -1,6 +1,6 @@
 #ifndef IBUS_HPP
 #define IBUS_HPP
-#include "bitstream.hpp"
+#include "../../../include/commons/bitstream.hpp"
 
 class ibus : public sc_core::sc_module {
  public:

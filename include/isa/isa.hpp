@@ -1,5 +1,9 @@
 #ifndef ISA_HPP
 #define ISA_HPP
+#include <cstdint>
+
+#include "commons/bits.hpp"
+
 template <unsigned int WIDTH = 32>
 class fields;
 

@@ -1,8 +1,8 @@
 #ifndef RAM_DRIVER
 #define RAM_DRIVER
 #include <uvm>
-#include <warnings.hpp>
 
+#include "../../../include/commons/warnings.hpp"
 #include "ibus.hpp"
 #include "ram_sequence_item.hpp"
 

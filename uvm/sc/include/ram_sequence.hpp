@@ -2,8 +2,8 @@
 #define RAM_SEQUENCE
 #include <uvm>
 #include <vector>
-#include <warnings.hpp>
 
+#include "../../../include/commons/warnings.hpp"
 #include "ram_sequence_item.hpp"
 #include "ram_sequencer.hpp"
 

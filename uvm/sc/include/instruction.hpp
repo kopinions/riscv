@@ -1,7 +1,8 @@
 #ifndef ROM_SEQUENCE_ITEM
 #define ROM_SEQUENCE_ITEM
 #include <uvm>
-#include <warnings.hpp>
+
+#include "../../../include/commons/warnings.hpp"
 
 namespace uv {
 class instruction : public uvm::uvm_sequence_item {

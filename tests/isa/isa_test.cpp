@@ -1,8 +1,9 @@
+#include "../../include/isa/isa.hpp"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <bits.hpp>
-#include <isa.hpp>
+#include "../../include/commons/bits.hpp"
 
 TEST(isa, should_able_to_unpack_the_r_instruction) {
   isa riscv{};

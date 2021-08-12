@@ -82,8 +82,14 @@ function(_find_systemc)
                 HINTS $ENV{UVM_SYSTEMC_LIBDIR} $ENV{SYSTEMC_LIBDIR} $ENV{SYSTEMC_HOME}
                 PATH_SUFFIXES lib lib32 lib64 lib-linux lib-linux32 lib-linux64 lib-macosx64
                 lib-cygwin lib-cygwin32 lib-cygwin64
+<<<<<<< HEAD
                 DOC "Path to the UVM SystemC library"
                 )
+=======
+            DOC "Path to the UVM SystemC library"
+        )
+        message(STATUS ${UVM_SYSTEMC_LIBRARY})
+>>>>>>> 00fbf84 (refactor: change the structure)
 
         if (UVM_SYSTEMC_LIBRARY)
             add_library(uvm-systemc UNKNOWN IMPORTED)

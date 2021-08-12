@@ -5,6 +5,7 @@
 #include <memory>
 #include <systemc>
 
+#include "isa/isa.hpp"
 #include "mm.hpp"
 #include "registers.hpp"
 
