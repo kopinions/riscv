@@ -19,5 +19,4 @@ if (NOT SYSTEMC_FOUND)
 endif ()
 
 add_subdirectory(uvm)
-add_subdirectory(rtl)
 add_subdirectory(tests)
