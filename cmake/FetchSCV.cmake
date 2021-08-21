@@ -4,7 +4,7 @@ ExternalProject_Add(scv-build
         CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17\ -DSC_CPLUSPLUS=201703L
         <SOURCE_DIR>/configure --enable-shared --with-pic --with-systemc=$<TARGET_PROPERTY:systemc,PREFIX> --prefix=<INSTALL_DIR>
         && ${CMAKE_COMMAND} -E env CXXFLAGS="-std=c++17 -DSC_CPLUSPLUS=201703L" CPPFLAGS="-DSC_CPLUSPLUS=201703L" env
-        && make CXXFLAGS="-std=c++17 -DSC_CPLUSPLUS=201703L" CPPFLAGS="-DSC_CPLUSPLUS=201703L" -j$(nproc)
+        && make CXXFLAGS="-std=c++17" CPPFLAGS="-DSC_CPLUSPLUS=201703L" -j$(nproc)
         && make -j$(nproc) install
         )
 ExternalProject_Get_Property(scv-build INSTALL_DIR)
