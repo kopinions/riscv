@@ -21,7 +21,7 @@ set_target_properties(${hdl_name}_test PROPERTIES
         )
 
 target_link_libraries(${hdl_name}_test
-        PUBLIC uvm-systemc systemc)
+        PUBLIC uvm-systemc systemc bridges)
 
 set(TESTS
         fetch_test

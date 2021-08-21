@@ -1,14 +1,16 @@
 include(ExternalProject)
 ExternalProject_Add(uvm-systemc-build
-        URL file:///Users/neo/Desktop/main.zip
+        URL https://github.com/kopinions/uvm-systemc/archive/refs/heads/main.zip
         CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17 <SOURCE_DIR>/configure --enable-shared
         --with-systemc=$<TARGET_PROPERTY:systemc,PREFIX> --prefix=<INSTALL_DIR>
         --with-arch-suffix= && make -j$(nproc) && make -j$(nproc) install
         )
 ExternalProject_Get_Property(uvm-systemc-build INSTALL_DIR)
 set(UVM_SYSTEMC_ROOT ${INSTALL_DIR})
-set(UVM_SYSTEMC_LIBFILE ${UVM_SYSTEMC_ROOT}/lib/libuvm-systemc.dylib)
+set(UVM_SYSTEMC_LIBDIR ${UVM_SYSTEMC_ROOT}/lib)
+set(UVM_SYSTEMC_LIBFILE ${UVM_SYSTEMC_LIBDIR}/libuvm-systemc.dylib)
 set(UVM_SYSTEMC_INCLUDE ${UVM_SYSTEMC_ROOT}/include)
+file(MAKE_DIRECTORY ${UVM_SYSTEMC_LIBDIR})
 file(TOUCH ${UVM_SYSTEMC_LIBFILE})
 file(MAKE_DIRECTORY ${UVM_SYSTEMC_INCLUDE})
 
