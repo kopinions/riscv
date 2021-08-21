@@ -4,7 +4,7 @@
 #define TLM2AXI_BRIDGE_MSG "tlm2axi-bridge"
 #include <systemc>
 
-#include "../../include/commons/bits.hpp"
+#include "commons/bits.hpp"
 template <unsigned int ADDR_WIDTH, unsigned int DATA_WIDTH = 32>
 class tlm2axi4 : public sc_core::sc_module {
  public:
