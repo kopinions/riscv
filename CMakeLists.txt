@@ -6,7 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 add_subdirectory(libs/recording)
 add_subdirectory(libs/bridges)
-
+add_subdirectory(cosim)
+message(STATUS ${PROJECT_SOURCE_DIR})
 include_directories(uvm/sc/include)
 include_directories(include)
 

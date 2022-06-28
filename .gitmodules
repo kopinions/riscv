@@ -1,0 +1,3 @@
+[submodule "libs/tlmsoc"]
+	path = libs/tlmsoc
+	url = https://github.com/Xilinx/libsystemctlm-soc.git
