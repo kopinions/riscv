@@ -23,4 +23,14 @@ void soc_t<NUM_USR_IRQ>::handle_irqv(void) {
   }
 }
 template <int NUM_USR_IRQ>
-soc_t<NUM_USR_IRQ>::soc_t(sc_core::sc_module_name name) {}
+soc_t<NUM_USR_IRQ>::soc_t(sc_core::sc_module_name name) {
+  int i;
+
+  tlm_s_axib.register_b_transport(this,
+                                  &soc_t::tlm_s_axib_b_transport);
+
+  SC_THREAD(handle_irqv);
+  for (i = 0; i < NUM_USR_IRQ; i++) {
+    sensitive << usr_irq_reqv[i];
+  }
+}

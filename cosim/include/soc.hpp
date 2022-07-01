@@ -23,6 +23,7 @@ class soc_t : public pci_device_base {
   sc_vector<sc_in<bool> > usr_irq_reqv;
   explicit soc_t(sc_core::sc_module_name name);
 
+
  private:
   // Extends the PCI device base class forwarding BAR0 traffic
   // onto the m_axib port.

@@ -21,3 +21,4 @@ endif ()
 
 add_subdirectory(uvm)
 add_subdirectory(tests)
+add_subdirectory(apps/tlm)
