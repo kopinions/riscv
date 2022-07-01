@@ -1,12 +1,13 @@
-#include <remote-port-tlm-memory-master.h>
-#include <remote-port-tlm-memory-slave.h>
-#include <remote-port-tlm-wires.h>
-#include <remote-port-tlm.h>
+
 #include <systemc.h>
 #include <tlm_utils/simple_initiator_socket.h>
 #include <tlm_utils/simple_target_socket.h>
 #include <tlm_utils/tlm_quantumkeeper.h>
-
+#include <libremote-port/remote-port-tlm-memory-master.h>
+#include <libremote-port/remote-port-tlm-memory-slave.h>
+#include <libremote-port/remote-port-tlm-wires.h>
+#include <libremote-port/remote-port-tlm.h>
+using namespace sc_core;
 class pcie_bridge : public remoteport_tlm {
  private:
   remoteport_tlm_memory_slave rp_s_axi_cfg;
