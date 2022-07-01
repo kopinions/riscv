@@ -1,4 +1,3 @@
-`include "mux8.v"
 module tb_mux8 (/*AUTOARG*/) ;
    reg [63:0] in0;
    reg [63:0] in1;
@@ -25,8 +24,13 @@ module tb_mux8 (/*AUTOARG*/) ;
 	  .out(out)
 	  );
 
+   integer     i;
+   
    initial begin
-      sel = 3'b001;
+      sel = 0;
+      
+      $monitor("sel:%h out:%h", sel, out);
+      
       in0 = 64'h0;
       in1 = 64'h1;
       in2 = 64'h2;
@@ -35,7 +39,10 @@ module tb_mux8 (/*AUTOARG*/) ;
       in5 = 64'h5;
       in6 = 64'h6;
       in7 = 64'h7;
-      $monitor("%h", out);
+
+      for (i=0;i<8;i++) begin
+	 #1 sel=i;
+      end
    end
    
    
