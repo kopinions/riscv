@@ -1,3 +1,4 @@
+include(GNUInstallDirs)
 include(ExternalProject)
 ExternalProject_Add(systemc-build
         URL https://www.accellera.org/images/downloads/standards/systemc/systemc-2.3.3.tar.gz
@@ -6,9 +7,9 @@ ExternalProject_Add(systemc-build
         )
 ExternalProject_Get_Property(systemc-build INSTALL_DIR)
 set(SYSTEMC_ROOT ${INSTALL_DIR})
-set(SYSTEMC_LIBDIR ${SYSTEMC_ROOT}/lib)
-set(SYSTEMC_LIBFILE ${SYSTEMC_LIBDIR}/libsystemc.dylib)
-set(SYSTEMC_INCLUDE ${SYSTEMC_ROOT}/include)
+set(SYSTEMC_LIBDIR ${SYSTEMC_ROOT}/${CMAKE_INSTALL_LIBDIR})
+set(SYSTEMC_LIBFILE ${SYSTEMC_LIBDIR}/libsystemc.${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(SYSTEMC_INCLUDE ${SYSTEMC_ROOT}/${CMAKE_INSTALL_INCLUDEDIR})
 file(MAKE_DIRECTORY ${SYSTEMC_LIBDIR})
 file(TOUCH ${SYSTEMC_LIBFILE})
 file(MAKE_DIRECTORY ${SYSTEMC_INCLUDE})

@@ -1,6 +1,8 @@
+include(GNUInstallDirs)
 include(ExternalProject)
 ExternalProject_Add(scv-build
         URL https://www.accellera.org/images/downloads/standards/systemc/scv-2.0.1.tar.gz
+        PATCH_COMMAND patch configure ${CMAKE_SOURCE_DIR}/cmake/scv_configure.patch
         CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17\ -DSC_CPLUSPLUS=201703L
         <SOURCE_DIR>/configure --enable-shared --with-pic --with-systemc=$<TARGET_PROPERTY:systemc,PREFIX> --prefix=<INSTALL_DIR>
         && ${CMAKE_COMMAND} -E env CXXFLAGS="-std=c++17 -DSC_CPLUSPLUS=201703L" CPPFLAGS="-DSC_CPLUSPLUS=201703L" env
@@ -9,9 +11,9 @@ ExternalProject_Add(scv-build
         )
 ExternalProject_Get_Property(scv-build INSTALL_DIR)
 set(SCV_ROOT ${INSTALL_DIR})
-set(SCV_LIBDIR ${SCV_ROOT}/lib-macosx64)
-set(SCV_LIBFILE ${SCV_LIBDIR}/libscv.dylib)
-set(SCV_INCLUDE ${SCV_ROOT}/include)
+set(SCV_LIBDIR ${SCV_ROOT}/${CMAKE_INSTALL_LIBDIR})
+set(SCV_LIBFILE ${SCV_LIBDIR}/libscv.${CMAKE_SHARED_LIBRARY_SUFFIX} )
+set(SCV_INCLUDE ${SCV_ROOT}/${CMAKE_INSTALL_INCLUDEDIR})
 file(MAKE_DIRECTORY ${SCV_LIBDIR})
 file(TOUCH ${SCV_LIBFILE})
 file(MAKE_DIRECTORY ${SCV_INCLUDE})

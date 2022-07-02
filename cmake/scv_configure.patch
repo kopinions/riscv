@@ -1,0 +1,36 @@
+--- configure.bak	2022-07-02 17:45:50.000000000 +0800
++++ configure	2022-07-02 17:47:43.000000000 +0800
+@@ -16708,6 +16708,33 @@
+ $as_echo "no" >&6; }
+     fi
+   fi
++  if test $lib_found = 0; then
++    SYSC_LIB_PREFIX="$systemc_path/lib64"
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking \"for $SYSC_LIB_PREFIX/libsystemc.so\"" >&5
++$as_echo_n "checking \"for $SYSC_LIB_PREFIX/libsystemc.so\"... " >&6; }
++    if test -r "$SYSC_LIB_PREFIX/libsystemc.so"; then
++      lib_found=1
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++$as_echo "yes" >&6; }
++    else
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++    fi
++  fi
++  if test $lib_found = 0; then
++    SYSC_LIB_PREFIX="$systemc_path/lib"
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking \"for $SYSC_LIB_PREFIX/libsystemc.so\"" >&5
++$as_echo_n "checking \"for $SYSC_LIB_PREFIX/libsystemc.so\"... " >&6; }
++    if test -r "$SYSC_LIB_PREFIX/libsystemc.so"; then
++      lib_found=1
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++$as_echo "yes" >&6; }
++    else
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++    fi
++  fi
++
+   if test $header_found = 0; then
+     SYSC_INC_PREFIX="$systemc_path/include"
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $SYSC_INC_PREFIX/systemc.h" >&5

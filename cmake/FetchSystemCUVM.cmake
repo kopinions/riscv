@@ -1,4 +1,5 @@
 include(ExternalProject)
+include(GNUInstallDirs)
 ExternalProject_Add(uvm-systemc-build
         URL https://github.com/kopinions/uvm-systemc/archive/refs/heads/main.zip
         CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17 <SOURCE_DIR>/configure --enable-shared
@@ -7,9 +8,9 @@ ExternalProject_Add(uvm-systemc-build
         )
 ExternalProject_Get_Property(uvm-systemc-build INSTALL_DIR)
 set(UVM_SYSTEMC_ROOT ${INSTALL_DIR})
-set(UVM_SYSTEMC_LIBDIR ${UVM_SYSTEMC_ROOT}/lib)
-set(UVM_SYSTEMC_LIBFILE ${UVM_SYSTEMC_LIBDIR}/libuvm-systemc.dylib)
-set(UVM_SYSTEMC_INCLUDE ${UVM_SYSTEMC_ROOT}/include)
+set(UVM_SYSTEMC_LIBDIR ${UVM_SYSTEMC_ROOT}/${CMAKE_INSTALL_LIBDIR})
+set(UVM_SYSTEMC_LIBFILE ${UVM_SYSTEMC_LIBDIR}/libuvm-systemc.${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(UVM_SYSTEMC_INCLUDE ${UVM_SYSTEMC_ROOT}/${CMAKE_INSTALL_INCLUDEDIR})
 file(MAKE_DIRECTORY ${UVM_SYSTEMC_LIBDIR})
 file(TOUCH ${UVM_SYSTEMC_LIBFILE})
 file(MAKE_DIRECTORY ${UVM_SYSTEMC_INCLUDE})
