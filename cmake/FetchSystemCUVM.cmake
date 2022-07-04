@@ -1,5 +1,6 @@
 include(ExternalProject)
 include(GNUInstallDirs)
+message(STATUS ${CMAKE_INSTALL_LIBDIR})
 ExternalProject_Add(uvm-systemc-build
         URL https://github.com/kopinions/uvm-systemc/archive/refs/heads/main.zip
         CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17
