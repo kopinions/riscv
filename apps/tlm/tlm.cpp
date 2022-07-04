@@ -10,13 +10,26 @@ class tlm_t : public sc_core::sc_module {
   sc_signal<bool> rst;
   soc_t<2> m_soc;
 
+
+
  public:
   remoteport_tlm_pci_ep rp_pci_ep;
+  tlm_utils::simple_initiator_socket<tlm_t> m_initiator;
+  tlm_utils::simple_target_socket<tlm_t> m_target;
   tlm_t(const sc_module_name& nm, const char* sk_descr, sc_time quantum)
-      : sc_module(nm), rp_pci_ep("rp_pci_ep", 0, 1, 4, sk_descr), m_soc("soc_device") {
+      : sc_module(nm), rp_pci_ep("rp_pci_ep", 0, 6, 2, sk_descr), m_soc("soc_device"), m_initiator("init"), m_target("target") {
     rp_pci_ep.rst(rst);
     rp_pci_ep.bind(m_soc);
+    m_soc.tlm_m_axib.bind(m_target);
+    m_soc.tlm_s_axib.bind(m_initiator);
+    SC_THREAD(pull_reset);
   }
+
+ void pull_reset() {
+rst.write(true);
+wait(1, SC_US);
+rst.write(false);
+}
 
  private:
 };
@@ -36,7 +49,7 @@ int sc_main(int argc, char* argv[]) {
 
   sc_set_time_resolution(1, SC_PS);
 
-  top = new tlm_t("top", argv[1], sc_time((double)sync_quantum, SC_NS));
+  top = new tlm_t("tlm", argv[1], sc_time((double)sync_quantum, SC_NS));
 
   if (argc < 3) {
     sc_start(1, SC_PS);
