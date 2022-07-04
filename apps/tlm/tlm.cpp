@@ -1,5 +1,8 @@
-#include <libremote-port/remote-port-tlm-pci-ep.h>
 #include <systemc.h>
+#include <tlm.h>
+#include <tlm_utils/simple_initiator_socket.h>
+#include <tlm_utils/simple_target_socket.h>
+#include <libremote-port/remote-port-tlm-pci-ep.h>
 #include <soc.hpp>
 
 class tlm_t : public sc_core::sc_module {
@@ -10,7 +13,7 @@ class tlm_t : public sc_core::sc_module {
  public:
   remoteport_tlm_pci_ep rp_pci_ep;
   tlm_t(const sc_module_name& nm, const char* sk_descr, sc_time quantum)
-      : sc_module(nm), rp_pci_ep("rp_pci_ep", 0, 1, 4, sk_descr) {
+      : sc_module(nm), rp_pci_ep("rp_pci_ep", 0, 1, 4, sk_descr), m_soc("soc_device") {
     rp_pci_ep.rst(rst);
     rp_pci_ep.bind(m_soc);
   }
@@ -43,7 +46,7 @@ int sc_main(int argc, char* argv[]) {
   }
 
   trace_fp = sc_create_vcd_trace_file(argv[0]);
-  trace(trace_fp, *top, top->name());
+  // trace(trace_fp, *top, top->name());
 
   sc_start();
   if (trace_fp) {
