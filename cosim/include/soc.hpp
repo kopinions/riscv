@@ -21,20 +21,25 @@ class soc_t : public pci_device_base {
  public:
   tlm_utils::simple_initiator_socket<soc_t> tlm_m_axib;
   tlm_utils::simple_target_socket<soc_t> tlm_s_axib;
-  sc_vector<sc_in<bool> > usr_irq_reqv;
+  sc_vector<sc_in<bool>> usr_irq_reqv;
   sc_vector<sc_signal<bool>> irq_r;
-  explicit soc_t(sc_core::sc_module_name name) : pci_device_base(name, 6, NUM_USR_IRQ), tlm_m_axib("tlm_m_axib"), tlm_s_axib("tlm_s_axib"), usr_irq_reqv("usr-irq-reqv", NUM_USR_IRQ), irq_r("irq-r", NUM_USR_IRQ) {
+  explicit soc_t(sc_core::sc_module_name name)
+      : pci_device_base(name, 6, NUM_USR_IRQ),
+        tlm_m_axib("tlm_m_axib"),
+        tlm_s_axib("tlm_s_axib"),
+        usr_irq_reqv("usr-irq-reqv", NUM_USR_IRQ),
+        irq_r("irq-r", NUM_USR_IRQ) {
     int i;
 
     tlm_s_axib.register_b_transport(this, &soc_t::tlm_s_axib_b_transport);
 
     SC_THREAD(handle_irqv);
-    for(i=0; i<NUM_USR_IRQ; i++) {
-	usr_irq_reqv[i](irq_r[i]);
-	}
-    for(i=0; i<NUM_USR_IRQ; i++) {
-	sensitive << usr_irq_reqv[i];
-	}
+    for (i = 0; i < NUM_USR_IRQ; i++) {
+      usr_irq_reqv[i](irq_r[i]);
+    }
+    for (i = 0; i < NUM_USR_IRQ; i++) {
+      sensitive << usr_irq_reqv[i];
+    }
   };
 
  private:
