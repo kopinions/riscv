@@ -1,9 +1,9 @@
-#include "../../include/isa/isa.hpp"
+#include "isa/isa.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "../../include/commons/bits.hpp"
+#include "commons/bits.hpp"
 
 TEST(isa, should_able_to_unpack_the_r_instruction) {
   isa riscv{};
@@ -105,7 +105,7 @@ TEST(isa, should_able_to_unpack_the_j_instruction) {
   ASSERT_THAT(fields.imm(), testing::Eq(254));
 }
 
-int main(int argc, char **argv) {
+int sc_main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

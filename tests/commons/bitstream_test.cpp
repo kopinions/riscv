@@ -1,4 +1,4 @@
-#include "../../include/commons/bitstream.hpp"
+#include "commons/bitstream.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -22,7 +22,7 @@ TEST(bitstream, should_able_to_set_specific_bit_with_const) {
   ASSERT_THAT(bool(bits[2]), testing::Eq(false));
 }
 
-int main(int argc, char **argv) {
+int sc_main(int argc, char* argv[]) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

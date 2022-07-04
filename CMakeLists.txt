@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(riscv CXX)
+project(riscv CXX C)
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_LIST_DIR}/cmake")
