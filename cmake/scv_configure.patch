@@ -1,5 +1,17 @@
---- configure.bak	2022-07-02 17:45:50.000000000 +0800
-+++ configure	2022-07-02 17:47:43.000000000 +0800
+--- scv-2.0.1/configure	2017-11-20 19:25:04.000000000 +0800
++++ scv-build/configure	2022-07-04 10:54:23.587756409 +0800
+@@ -16595,9 +16595,9 @@
+     if test "$rh_gxx_prog" = "no"; then EXTRA_GNU_DIR="/gnu"; fi
+     case "$target_cpu" in
+       i[3456]86*)
+-        SYSC_TARGET="linux";;
++        SYSC_TARGET="";;
+       x86_64*)
+-        SYSC_TARGET="linux64";;
++        SYSC_TARGET="64";;
+     esac;;
+   *darwin*)
+     LDFLAG_RPATH="-Wl,-rpath -Wl,"
 @@ -16708,6 +16708,33 @@
  $as_echo "no" >&6; }
      fi
@@ -34,3 +46,12 @@
    if test $header_found = 0; then
      SYSC_INC_PREFIX="$systemc_path/include"
      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $SYSC_INC_PREFIX/systemc.h" >&5
+@@ -16825,7 +16852,7 @@
+ if test "$prefix" != "NONE"; then
+   mkdir -p $prefix
+   prefix=`cd $prefix; pwd`
+-  libdir=$prefix/lib-$SYSC_TARGET
++  libdir=$prefix/lib$SYSC_TARGET
+ elif test "$systemc_enab" = "no"; then
+   prefix=`pwd`
+   libdir=$prefix/lib-$SYSC_TARGET

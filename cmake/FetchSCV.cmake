@@ -12,7 +12,7 @@ ExternalProject_Add(scv-build
 ExternalProject_Get_Property(scv-build INSTALL_DIR)
 set(SCV_ROOT ${INSTALL_DIR})
 set(SCV_LIBDIR ${SCV_ROOT}/${CMAKE_INSTALL_LIBDIR})
-set(SCV_LIBFILE ${SCV_LIBDIR}/libscv.${CMAKE_SHARED_LIBRARY_SUFFIX} )
+set(SCV_LIBFILE ${SCV_LIBDIR}/libscv${CMAKE_SHARED_LIBRARY_SUFFIX} )
 set(SCV_INCLUDE ${SCV_ROOT}/${CMAKE_INSTALL_INCLUDEDIR})
 file(MAKE_DIRECTORY ${SCV_LIBDIR})
 file(TOUCH ${SCV_LIBFILE})
@@ -20,6 +20,7 @@ file(MAKE_DIRECTORY ${SCV_INCLUDE})
 
 add_library(scv SHARED IMPORTED GLOBAL)
 add_dependencies(scv scv-build)
+add_dependencies(scv-build systemc)
 set_target_properties(scv PROPERTIES
         IMPORTED_LOCATION ${SCV_LIBFILE}
         PREFIX ${SCV_ROOT}
