@@ -5,6 +5,7 @@ build
 3rdparty/sysc
 3rdparty/scv
 a.out
+*.log
 
 # Created by https://www.toptal.com/developers/gitignore/api/cmake
 # Edit at https://www.toptal.com/developers/gitignore?templates=cmake

@@ -22,13 +22,16 @@ spawn qemu-system-x86_64 \
     -device intel-iommu,intremap=on,device-iotlb=on \
     -hda rootfs.img \
     -vga virtio \
-    -vnc :${vncport},password=on \
+    -vnc :${vncport} \
     -chardev file,id=file0,path=serial.log -serial chardev:file0 \
     -chardev stdio,id=monitor \
     -mon chardev=monitor \
     -net nic -net user,hostfwd=tcp::2222-:22 \
     -device ioh3420,id=rootport,slot=0 \
-    -device ioh3420,id=rootport1,slot=1 
+    -device ioh3420,id=rootport1,slot=1
+
+    # -vnc :${vncport},password=on \
+
 # -machine-path /tmp/sim \
     # -device remote-port-pci-adaptor,bus=remoteport1,id=rp0
 
@@ -37,21 +40,26 @@ spawn qemu-system-x86_64 \
 # }
 
 
-expect "(qemu)" {
-    send "change vnc password\r"
-    expect "Password: " {
-        send "password\r"
-    }
-}
+# expect "(qemu)" {
+#     send "change vnc password\r"
+#     expect "Password: " {
+#         send "password\r"
+#     }
+# }
 
 send "info vnc\r"
 expect "*Auth:*"  {
-    # spawn open vnc://127.0.0.1:$real_vncport
+    if {[fork] == 0 } {
+        spawn -ignore HUP -noecho vncviewer -SecurityTypes=None 127.0.0.1:$real_vncport
+        
+        expect "*Connected to host 127.0.0.1 port *"
+        exit
+    }
 }
-set prompt ".*\(qemu\)"
-interact -o -nobuffer -re $prompt return
-send "info\r"
-interact -o -nobuffer -re $prompt return
+# set prompt ".*\(qemu\)"
+# interact -o -nobuffer -re $prompt return
+# send "info\r"
+# interact -o -nobuffer -re $prompt return
 # send "system_powerdown\r"
 
 # expect "(qemu)" {
