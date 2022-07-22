@@ -1,4 +1,4 @@
-#!/usr/bin/env expect -f
+#!/usr/bin/env expect
 set basedir [file normalize [file dirname $argv0]]
 
 set vncport [exec shuf -i 100-200 -n 1]
