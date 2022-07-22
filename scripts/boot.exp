@@ -1,26 +1,28 @@
 #!/usr/bin/env expect
 set basedir [file normalize [file dirname $argv0]]
-
+set imgroot [exec realpath "${basedir}/../images"]
 set vncport [exec shuf -i 100-200 -n 1]
 set real_vncport [expr {$vncport + 5900}]
 puts [format "start vnc at port %d" $real_vncport]
 set timeout -1
 
+set accel [expr ([string equal [exec uname -s] "Linux"] ==1 )? "{kvm}" : "{hvf}"]
+set kernel_release [exec uname -r]
 spawn qemu-system-x86_64 \
     -name test \
     -M q35,kernel-irqchip=split \
-    -m 1G \
-    -smp 1 \
-    -cpu host -accel hvf \
+    -m 8G \
+    -smp 2 \
+    -cpu host \
+    -accel ${accel} \
     -no-user-config \
     -nodefaults \
     -boot order=c \
-    -bios bios-256k.bin \
-    -kernel vmlinuz-3.10.0-1160.el7.x86_64 \
+    -kernel ${imgroot}/vmlinuz-${kernel_release} \
     -append "root=/dev/mapper/centos-root ro crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap console=ttyS0 console=hvc0 edd=off LANG=en_US.UTF-8" \
-    -initrd initramfs-3.10.0-1160.el7.x86_64.img \
+    -initrd ${imgroot}/initramfs-${kernel_release}.img \
     -device intel-iommu,intremap=on,device-iotlb=on \
-    -hda rootfs.img \
+    -hda ${imgroot}/rootfs.img \
     -vga virtio \
     -vnc :${vncport} \
     -chardev file,id=file0,path=serial.log -serial chardev:file0 \

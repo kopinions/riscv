@@ -21,6 +21,7 @@ try {
     echo "source /opt/atomicorp/atomic/enable" >> ~/.bashrc
 
     yum install -y expect
+    yum install -y tigervnc
 }
 catch {
     exit 1
