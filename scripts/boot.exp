@@ -8,6 +8,11 @@ set timeout -1
 
 set accel [expr ([string equal [exec uname -s] "Linux"] ==1 )? "{kvm}" : "{hvf}"]
 set kernel_release [exec uname -r]
+if {[string equal [exec uname -s] "Linux"]} {
+    set vnccmd "vinagre"
+} else {
+    set vnccmd "vncviewer -SecurityTypes=None"
+}
 spawn qemu-system-x86_64 \
     -name test \
     -M q35,kernel-irqchip=split \
@@ -52,7 +57,7 @@ spawn qemu-system-x86_64 \
 send "info vnc\r"
 expect "*Auth:*"  {
     if {[fork] == 0 } {
-        spawn -ignore HUP -noecho vncviewer -SecurityTypes=None 127.0.0.1:$real_vncport
+        spawn -ignore HUP -noecho ${vnccmd} 127.0.0.1:$real_vncport
         
         expect "*Connected to host 127.0.0.1 port *"
         exit
