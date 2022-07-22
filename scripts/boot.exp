@@ -13,6 +13,7 @@ if {[string equal [exec uname -s] "Linux"]} {
 } else {
     set vnccmd "vncviewer -SecurityTypes=None"
 }
+
 spawn qemu-system-x86_64 \
     -name test \
     -M q35,kernel-irqchip=split \
@@ -34,17 +35,11 @@ spawn qemu-system-x86_64 \
     -chardev stdio,id=monitor \
     -mon chardev=monitor \
     -net nic -net user,hostfwd=tcp::2222-:22 \
-    -device ioh3420,id=rootport,slot=0 \
-    -device ioh3420,id=rootport1,slot=1
-
+    -device ioh3420,id=remoteport,slot=0 \
+    -device ioh3420,id=remoteport1,slot=1 \
+    -machine-path /tmp/sim \
+    -device remote-port-pci-adaptor,bus=remoteport1,id=rp0
     # -vnc :${vncport},password=on \
-
-# -machine-path /tmp/sim \
-    # -device remote-port-pci-adaptor,bus=remoteport1,id=rp0
-
-# expect "(qemu)" {
-#     send "device_add remote-port-pci-device,bus=remoteport,rp-adaptor0=rp,rp-chan0=0,vendor-id=0x16c3,device-id=0xabcd,revision=0x01,nr-io-bars=0,nr-mm-bar=6,bar-size0=0x4000,bar-size1=0x0,bar-size2=0x200000,bar-size3=0x20000,bar-size4=0x1000,bar-size5=0x4000,prog-if=0x0,ats=true,msix=true,irq-pin=1\r"
-# }
 
 
 # expect "(qemu)" {
@@ -63,6 +58,12 @@ expect "*Auth:*"  {
         exit
     }
 }
+
+file mkdir /tmp/sim
+expect "(qemu)" {
+    send "device_add remote-port-pci-device,bus=remoteport,rp-adaptor0=rp,rp-chan0=0,vendor-id=0x16c3,device-id=0xabcd,revision=0x01,nr-io-bars=0,nr-mm-bar=6,bar-size0=0x4000,bar-size1=0x0,bar-size2=0x200000,bar-size3=0x20000,bar-size4=0x1000,bar-size5=0x4000,prog-if=0x0,ats=true,msix=true,irq-pin=1\r"
+}
+
 # set prompt ".*\(qemu\)"
 # interact -o -nobuffer -re $prompt return
 # send "info\r"
