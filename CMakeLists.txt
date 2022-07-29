@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.12)
 project(riscv CXX C)
 set(CMAKE_MACOSX_RPATH 1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

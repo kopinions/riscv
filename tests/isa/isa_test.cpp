@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 
 #include "commons/bits.hpp"
+#include <systemc.h>
+
 
 TEST(isa, should_able_to_unpack_the_r_instruction) {
   isa riscv{};

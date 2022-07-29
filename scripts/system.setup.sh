@@ -22,6 +22,8 @@ try {
 
     yum install -y expect
     yum install -y tigervnc
+
+	yum install cmake3
 }
 catch {
     exit 1
