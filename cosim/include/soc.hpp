@@ -54,7 +54,9 @@ class soc_t : public pci_device_base {
     tlm_m_axib->b_transport(trans, delay);
   };
 
-  void tlm_s_axib_b_transport(tlm::tlm_generic_payload& trans, sc_time& delay) { dma->b_transport(trans, delay); };
+  void tlm_s_axib_b_transport(tlm::tlm_generic_payload& trans, sc_time& delay) {
+    dma->b_transport(trans, delay);
+  };
 
   // Map usr_irq_reqv onto the PCI Base class.
   //

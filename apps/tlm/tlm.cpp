@@ -5,6 +5,8 @@
 // clang-format off
 #include <libremote-port/remote-port-tlm-pci-ep.h>
 // clang-format on
+#include <tlm_utils/tlm_quantumkeeper.h>
+
 #include <soc.hpp>
 
 class tlm_t : public sc_core::sc_module {
@@ -22,18 +24,23 @@ class tlm_t : public sc_core::sc_module {
         m_soc("soc_device"),
         m_initiator("init"),
         m_target("target") {
+    std::cout << "tlm init" << std::endl;
+    m_qk.set_global_quantum(quantum);
     rp_pci_ep.rst(rst);
     rp_pci_ep.bind(m_soc);
     m_soc.tlm_m_axib.bind(m_target);
     m_soc.tlm_s_axib.bind(m_initiator);
     SC_THREAD(pull_reset);
     m_target.register_b_transport(this, &tlm_t::dummy);
+    std::cout << "tlm init done" << std::endl;
   }
 
   void pull_reset() {
+    std::cout << "reset" << std::endl;
     rst.write(true);
     wait(1, SC_US);
     rst.write(false);
+    std::cout << "reset done" << std::endl;
   }
 
   void dummy(tlm::tlm_generic_payload& trans, sc_time& delay) {
@@ -42,6 +49,7 @@ class tlm_t : public sc_core::sc_module {
   };
 
  private:
+  tlm_utils::tlm_quantumkeeper m_qk;
 };
 
 void usage(void) { cout << "tlm socket-path sync-quantum-ns" << endl; }
@@ -57,9 +65,10 @@ int sc_main(int argc, char* argv[]) {
     sync_quantum = strtoull(argv[2], NULL, 10);
   }
 
-  sc_set_time_resolution(1, SC_PS);
+//  sc_set_time_resolution(1, SC_PS);
 
-  top = new tlm_t("tlm", argv[1], sc_time((double)sync_quantum, SC_NS));
+  std::cout << "tlm_t" << std::endl;
+  top = new tlm_t("tlm_t", argv[1], sc_time((double)sync_quantum, SC_NS));
 
   if (argc < 3) {
     sc_start(1, SC_PS);
