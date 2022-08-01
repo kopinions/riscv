@@ -10,7 +10,7 @@
 class tlm_t : public sc_core::sc_module {
   SC_HAS_PROCESS(tlm_t);
   sc_signal<bool> rst;
-  soc_t<2> m_soc;
+  soc_t<1> m_soc;
 
  public:
   remoteport_tlm_pci_ep rp_pci_ep;
@@ -18,7 +18,7 @@ class tlm_t : public sc_core::sc_module {
   tlm_utils::simple_target_socket<tlm_t> m_target;
   tlm_t(const sc_module_name& nm, const char* sk_descr, sc_time quantum)
       : sc_module(nm),
-        rp_pci_ep("rp_pci_ep", 0, 6, 2, sk_descr),
+        rp_pci_ep("rp_pci_ep", 0, 1, 1, sk_descr),
         m_soc("soc_device"),
         m_initiator("init"),
         m_target("target") {
@@ -27,6 +27,7 @@ class tlm_t : public sc_core::sc_module {
     m_soc.tlm_m_axib.bind(m_target);
     m_soc.tlm_s_axib.bind(m_initiator);
     SC_THREAD(pull_reset);
+    m_target.register_b_transport(this, &tlm_t::dummy);
   }
 
   void pull_reset() {
@@ -34,6 +35,11 @@ class tlm_t : public sc_core::sc_module {
     wait(1, SC_US);
     rst.write(false);
   }
+
+  void dummy(tlm::tlm_generic_payload& trans, sc_time& delay) {
+    std::cout << "xxxx" << std::endl;
+    trans.set_response_status(tlm::TLM_OK_RESPONSE);
+  };
 
  private:
 };

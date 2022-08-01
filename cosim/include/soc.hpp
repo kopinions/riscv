@@ -24,7 +24,7 @@ class soc_t : public pci_device_base {
   sc_vector<sc_in<bool>> usr_irq_reqv;
   sc_vector<sc_signal<bool>> irq_r;
   explicit soc_t(sc_core::sc_module_name name)
-      : pci_device_base(name, 6, NUM_USR_IRQ),
+      : pci_device_base(name, 1, NUM_USR_IRQ),
         tlm_m_axib("tlm_m_axib"),
         tlm_s_axib("tlm_s_axib"),
         usr_irq_reqv("usr-irq-reqv", NUM_USR_IRQ),

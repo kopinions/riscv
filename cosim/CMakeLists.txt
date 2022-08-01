@@ -21,6 +21,7 @@ target_sources(soc PRIVATE
         ${PROJECT_SOURCE_DIR}/libs/tlmsoc/libremote-port/remote-port-tlm.cc
         ${PROJECT_SOURCE_DIR}/libs/tlmsoc/soc/pci/core/pci-device-base.cc
         )
+target_compile_options(soc PUBLIC -g3)
 
 add_library(libsystemctlm SHARED)
 target_sources(libsystemctlm PRIVATE
@@ -31,6 +32,8 @@ target_sources(libsystemctlm PRIVATE
 target_include_directories(libsystemctlm PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/libs/tlmsoc/libremote-port>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/libs/tlmsoc>)
+
+target_compile_options(libsystemctlm PUBLIC -g3)
 
 target_link_libraries(soc PUBLIC systemc libsystemctlm)
 target_compile_options(soc PRIVATE -std=c++17 -DSC_CPLUSPLUS=201703L)

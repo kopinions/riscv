@@ -7,6 +7,6 @@ target_sources(tlm.elf PRIVATE
 
 
 target_link_libraries(tlm.elf PUBLIC systemc)
-target_compile_options(tlm.elf PRIVATE -std=c++17 -DSC_CPLUSPLUS=201703L)
+target_compile_options(tlm.elf PRIVATE -std=c++17 -DSC_CPLUSPLUS=201703L -g3)
 #add_subdirectory(src)
 
