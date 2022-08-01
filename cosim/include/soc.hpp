@@ -43,6 +43,13 @@ class soc_t : public pci_device_base {
   };
 
  private:
+ protected:
+  void config_b_transport(tlm::tlm_generic_payload& trans, sc_time& delay) override {
+    std::cout << "config message" << std::endl;
+    trans.set_response_status(tlm::TLM_OK_RESPONSE);
+  }
+
+ private:
   // Extends the PCI device base class forwarding BAR0 traffic
   // onto the m_axib port.
   void bar_b_transport(int bar_nr, tlm::tlm_generic_payload& trans, sc_time& delay) override {
