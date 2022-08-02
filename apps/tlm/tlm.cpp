@@ -7,7 +7,7 @@
 // clang-format on
 #include <tlm_utils/tlm_quantumkeeper.h>
 
-#include <soc.hpp>
+#include "soc.hpp"
 
 class tlm_t : public sc_core::sc_module {
   SC_HAS_PROCESS(tlm_t);
