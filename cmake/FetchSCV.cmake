@@ -1,9 +1,9 @@
 include(GNUInstallDirs)
 include(ExternalProject)
 ExternalProject_Add(scv-build
-        URL https://www.accellera.org/images/downloads/standards/systemc/scv-2.0.1.tar.gz
-        PATCH_COMMAND patch configure ${CMAKE_SOURCE_DIR}/cmake/scv_configure.patch
-        CONFIGURE_COMMAND ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17\ -DSC_CPLUSPLUS=201703L
+        GIT_REPOSITORY https://github.com/kopinions/scv.git
+        CONFIGURE_COMMAND pushd <SOURCE_DIR> && autoconf && popd &&
+        ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17\ -DSC_CPLUSPLUS=201703L
         <SOURCE_DIR>/configure --enable-shared --with-pic --with-systemc=$<TARGET_PROPERTY:systemc,PREFIX> --prefix=<INSTALL_DIR>
         && ${CMAKE_COMMAND} -E env CXXFLAGS="-std=c++17 -DSC_CPLUSPLUS=201703L" CPPFLAGS="-DSC_CPLUSPLUS=201703L"
         make CXXFLAGS="-std=c++17" CPPFLAGS="-DSC_CPLUSPLUS=201703L" -j$(nproc)
