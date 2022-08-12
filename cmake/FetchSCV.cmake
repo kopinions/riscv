@@ -2,7 +2,7 @@ include(GNUInstallDirs)
 include(ExternalProject)
 ExternalProject_Add(scv-build
         GIT_REPOSITORY https://github.com/kopinions/scv.git
-        CONFIGURE_COMMAND pushd <SOURCE_DIR> && autoconf && popd &&
+        CONFIGURE_COMMAND pushd <SOURCE_DIR> && autoconf && aclocal && automake --add-missing && popd &&
         ${CMAKE_COMMAND} -E env CXXFLAGS=-std=c++17\ -DSC_CPLUSPLUS=201703L
         <SOURCE_DIR>/configure --enable-shared --with-pic --with-systemc=$<TARGET_PROPERTY:systemc,PREFIX> --prefix=<INSTALL_DIR>
         && ${CMAKE_COMMAND} -E env CXXFLAGS="-std=c++17 -DSC_CPLUSPLUS=201703L" CPPFLAGS="-DSC_CPLUSPLUS=201703L"
