@@ -14,11 +14,6 @@ function(_find_systemc)
             DOC "Path to the SystemC library"
             )
 
-    if (SYSTEMC_LIBRARY)
-        add_library(systemc UNKNOWN IMPORTED)
-        set_target_properties(systemc PROPERTIES IMPORTED_LOCATION
-                ${SYSTEMC_LIBRARY})
-    endif ()
     mark_as_advanced(SYSTEMC_LIBRARY)
 
     if ("${CMAKE_VERSION}" VERSION_GREATER 2.8.12)
@@ -33,6 +28,15 @@ function(_find_systemc)
             )
 
     mark_as_advanced(SYSTEMC_INCLUDE_DIR)
+
+    if (SYSTEMC_LIBRARY)
+        add_library(systemc UNKNOWN IMPORTED)
+        get_filename_component(PARENT_DIR ${SYSTEMC_INCLUDE_DIR} PATH)
+        set_target_properties(systemc PROPERTIES
+                IMPORTED_LOCATION ${SYSTEMC_LIBRARY}
+                PREFIX ${PARENT_DIR}
+                )
+    endif ()
 
     find_package_handle_standard_args(SystemC REQUIRED_VARS
             SYSTEMC_LIBRARY_DIR SYSTEMC_LIBRARY SYSTEMC_INCLUDE_DIR)
@@ -72,8 +76,6 @@ function(_find_systemc)
             set(SYSTEMC_LIBRARY_DIRS ${SYSTEMC_LIBRARY_DIR} ${SYSTEMC_LIBRARY_DIRS} ${SCV_LIBRARY_DIR})
             set(SYSTEMC_LIBRARIES ${SYSTEMC_LIBRARIES} ${SYSTEMC_LIBRARY} scv)
             set(SYSTEMC_INCLUDE_DIRS ${SYSTEMC_INCLUDE_DIRS} ${SYSTEMC_INCLUDE_DIR} ${SCV_INCLUDE_DIR})
-        else ()
-            set(SYSTEMC_FOUND FALSE)
         endif ()
     endmacro()
 
@@ -114,8 +116,6 @@ function(_find_systemc)
             set(SYSTEMC_LIBRARY_DIRS ${SYSTEMC_LIBRARY_DIRS} ${SYSTEMC_LIBRARY_DIR} ${UVM_SYSTEMC_LIBRARY_DIR})
             set(SYSTEMC_LIBRARIES ${SYSTEMC_LIBRARIES} ${SYSTEMC_LIBRARY} uvm-systemc)
             set(SYSTEMC_INCLUDE_DIRS ${SYSTEMC_INCLUDE_DIRS} ${UVM_SYSTEMC_INCLUDE_DIR})
-        else ()
-            set(SYSTEMC_FOUND FALSE)
         endif ()
     endmacro()
 

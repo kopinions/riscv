@@ -14,7 +14,11 @@ find_package(SystemC
         COMPONENTS UVM)
 if (NOT SYSTEMC_FOUND)
     include(FetchSystemC)
+endif ()
+if (NOT UVM_SYSTEMC_FOUND)
     include(FetchSystemCUVM)
+endif ()
+if (NOT SCV_FOUND)
     include(FetchSCV)
 endif ()
 
