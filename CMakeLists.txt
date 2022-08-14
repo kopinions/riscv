@@ -15,6 +15,7 @@ find_package(SystemC
 if (NOT SYSTEMC_FOUND)
     include(FetchSystemC)
 endif ()
+
 if (NOT UVM_SYSTEMC_FOUND)
     include(FetchSystemCUVM)
 endif ()

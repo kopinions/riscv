@@ -14,6 +14,9 @@ target_compile_options(remoteport PUBLIC
         $<$<CONFIG:DEBUG>:-Og>
         $<$<CONFIG:RELEASE>:-O3>)
 
+target_compile_options(remoteport PUBLIC
+        -fPIC -m64)
+
 add_library(remoteport-tlm SHARED)
 
 target_include_directories(remoteport-tlm PUBLIC
@@ -34,6 +37,9 @@ target_compile_options(remoteport-tlm PUBLIC
         $<$<CONFIG:DEBUG>:-g3>
         $<$<CONFIG:DEBUG>:-Og>
         $<$<CONFIG:RELEASE>:-O3>)
+
+target_compile_options(remoteport-tlm PUBLIC
+        -fPIC -m64)
 
 target_link_libraries(remoteport-tlm PUBLIC systemc remoteport)
 target_compile_definitions(remoteport-tlm PUBLIC SC_CPLUSPLUS=201703L)
