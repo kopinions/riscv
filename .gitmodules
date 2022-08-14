@@ -1,6 +1,6 @@
 [submodule "libs/tlmsoc"]
 	path = libs/tlmsoc/src
-	url = https://github.com/Xilinx/libsystemctlm-soc.git
+	url = https://github.com/kopinions/libsystemctlm-soc.git
 [submodule "scripts/lib"]
 	path = scripts/lib
 	url = https://github.com/niieani/bash-oo-framework.git
